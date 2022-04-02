@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
+import pandas as pd
 
 url = "https://www.newegg.com/p/pl?Submit=StoreIM&Category=34&Depa=1"
 
@@ -8,16 +9,27 @@ soup = BeautifulSoup(page.text, "html.parser")
 
 cell = soup.find_all(class_='item-cell') # This is a list
 
-title = cell.find(class_='item-title')
-link = [cell.find('a', href=True) for li in cell]
-price = [cell.find('li', {'class': 'price-current'}) for pr in cell]
+brand = cell[0].find(class_='item-title').get_text().split(' ')
 
-print(title)
-print(link)
-print(price)
+title = [item.find(class_="item-title").get_text() for item in cell] # List comprehension here gets all (full) titles
+link = [item.find('a', href=True)['href'] for item in cell]
+price = [item.find('li', {'class': 'price-current'}).strong.get_text() for item in cell]
 
+dataset = pd.DataFrame(
+    {
+        'Title': title,
+        'Link': link,
+        'Price': price,
+    })
 
+print(dataset)
 
+dataset.to_csv('CPU.csv')
+
+#if "Ryzen" in brand:
+#    ryzen = brand.index("Ryzen")
+#elif "Intel" in brand:
+#    intel = brand.index("Intel")
 
 
 
