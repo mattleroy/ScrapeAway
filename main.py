@@ -11,6 +11,18 @@ cell = soup.find_all(class_='item-cell') # This is a list
 
 brand = cell[0].find(class_='item-title').get_text().split(' ')
 
+
+for item in cell:
+    title = item.find(class_="item-title").get_text().split('-')[0]
+    link = item.find('a', href=True)['href']
+    price = item.find('li', {'class': 'price-current'}).strong.get_text()
+    print(title, link, price)
+
+
+
+
+
+"""
 title = [item.find(class_="item-title").get_text() for item in cell] # List comprehension here gets all (full) titles
 link = [item.find('a', href=True)['href'] for item in cell]
 price = [item.find('li', {'class': 'price-current'}).strong.get_text() for item in cell]
@@ -22,8 +34,6 @@ dataset = pd.DataFrame(
         'Price': price,
     })
 
-print(dataset)
-
 dataset.to_csv('CPU.csv')
 
 #if "Ryzen" in brand:
@@ -31,9 +41,6 @@ dataset.to_csv('CPU.csv')
 #elif "Intel" in brand:
 #    intel = brand.index("Intel")
 
-
-
-"""
 for item in cell:
     link = item.find('a', href=True)
     print(link['href'])
