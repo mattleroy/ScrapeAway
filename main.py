@@ -31,7 +31,7 @@ for url in url_list: # This will need to be modified to fit other websites, curr
         })
 
 
-    dataset.to_excel(r'C:\Users\Exo\Documents\Excel\ComputerPartsData.xlsx', index=False)
+    #dataset.to_excel(r'C:\Users\Exo\Documents\Excel\ComputerPartsData.xlsx', index=False)
     print(dataset.head(10))
     time.sleep(10)
 
@@ -52,11 +52,6 @@ title = [item.find(class_="item-title").get_text().split('-')[0] for item in cel
 link = [item.find('a', href=True)['href'] for item in cell]
 price = [item.find('li', {'class': 'price-current'}).strong.get_text() for item in cell]
 """
-
-
-
-
-
 
 """
 for item in cell:

@@ -1,17 +1,17 @@
 url_list = ['https://www.newegg.com/Processors-Desktops/SubCategory/ID-343?Tid=7671', 'https://www.newegg.com/Desktop-Graphics-Cards/SubCategory/ID-48?Tid=7709']
 
-class Switcher: # Switches between websites when finished scraping
+class Switcher:  # Switches between websites when finished scraping
 
     def __init__(self, new_url):
         self.new_url = new_url
 
     @classmethod
-    def url_switcher(self): # Switches between URLS
+    def url_switcher(cls):  # Switches between URLS
         for url in url_list:
             return url
 
 
-class NWF: # Newegg
+class NWF:  # Newegg
 
     def __init__(self, cell):
         self.cell = cell
