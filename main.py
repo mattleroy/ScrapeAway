@@ -1,3 +1,5 @@
+import csv
+
 from bs4 import BeautifulSoup
 import requests
 import pandas as pd
@@ -5,8 +7,7 @@ import openpyxl
 from WebFunctions import NWF, Switcher
 import time
 
-# TODO: add list of websites to switch between when one website finishes
-# TODO: add list of urls to switch between on a website when one execution finishes
+
 
 url_list = ['https://www.newegg.com/Processors-Desktops/SubCategory/ID-343?Tid=7671', 'https://www.newegg.com/Desktop-Graphics-Cards/SubCategory/ID-48?Tid=7709']
 
@@ -15,27 +16,25 @@ headers = {
     "Accept-Language": "en",
 }
 
-#url = "https://www.newegg.com/Processors-Desktops/SubCategory/ID-343?Tid=7671"
-
-
 for url in url_list: # This will need to be modified to fit other websites, currently working with Newegg
+
     page = requests.get(url, headers=headers)
     soup = BeautifulSoup(page.text, "html.parser")
     cell = soup.find_all(class_='item-cell') # This is a list
 
     dataset = pd.DataFrame(
-        {
+    {
             'Title': NWF.get_title(cell),
             'Link': NWF.get_link(cell),
             'Price': NWF.get_price(cell),
         })
-
-
-    #dataset.to_excel(r'C:\Users\Exo\Documents\Excel\ComputerPartsData.xlsx', index=False)
+    dataset.to_csv('dataset.csv')
+    dataset.to_excel(r'C:\Users\Exo\Documents\Excel\ComputerPartsData.xlsx', index=False)
     print(dataset.head(10))
-    time.sleep(10)
 
 
+#file = pd.read_csv("dataset.csv")
+#print(file)
 """
 for item in cell:
     title = [item.find(class_="item-title").get_text().split('-')[0]]
@@ -51,9 +50,9 @@ for item in cell:
 title = [item.find(class_="item-title").get_text().split('-')[0] for item in cell] # List comprehension here gets all (full) titles
 link = [item.find('a', href=True)['href'] for item in cell]
 price = [item.find('li', {'class': 'price-current'}).strong.get_text() for item in cell]
-"""
 
-"""
+
+
 for item in cell:
     link = item.find('a', href=True)
     print(link['href'])

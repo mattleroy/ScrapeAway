@@ -12,7 +12,6 @@ class Switcher:  # Switches between websites when finished scraping
 
 
 class NWF:  # Newegg
-
     def __init__(self, cell):
         self.cell = cell
 
@@ -30,3 +29,14 @@ class NWF:  # Newegg
     def get_price(cls, cell):
         price = [item.find('li', {'class': 'price-current'}).strong.get_text() for item in cell]
         return price
+
+    @classmethod
+    def url_changer(cls):
+        url = "https://www.newegg.com/Processors-Desktops/SubCategory/ID-343?Tid=7671"
+        s_url = url.split('?')
+        page = 1
+
+        for i in range(5):
+            url = s_url[0] + f"/page-{page}"
+            page += 1
+            return url
