@@ -27,16 +27,15 @@ class NWF:  # Newegg
 
     @classmethod
     def get_price(cls, cell):
-        price = [item.find('li', {'class': 'price-current'}).strong.get_text() for item in cell]
+        price = [item.find('li', {'class': 'price-current'}).strong for item in cell]
         return price
 
     @classmethod
-    def url_changer(cls):
+    def url_changer(cls, page):
         url = "https://www.newegg.com/Processors-Desktops/SubCategory/ID-343?Tid=7671"
         s_url = url.split('?')
-        page = 1
 
-        for i in range(5):
+        for i in range(5):  # Only scraping 5 pages
             url = s_url[0] + f"/page-{page}"
             page += 1
             return url
