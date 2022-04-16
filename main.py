@@ -26,8 +26,10 @@ while page_cap != 6:
             'Price': NWF.get_price(cell),
     })
 
+    dataset["Price"].fillna("No Price", inplace=True)
+
     with ExcelWriter(r'C:\Users\Exo\Documents\Excel\ComputerPartsData.xlsx', mode='a', if_sheet_exists='overlay') as writer:
-        dataset.to_excel(writer, startrow=writer.sheets['Sheet1'].max_row, sheet_name='Sheet1')
+        dataset.to_excel(writer, startrow=0, header=None, index=False, sheet_name='Sheet1')
     print(dataset.head(10))
     time.sleep(10)
     page_cap += 1
