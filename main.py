@@ -26,7 +26,7 @@ while page_cap != 6:
             'Price': NWF.get_price(cell),
     })
 
-    dataset["Price"].fillna("No Price", inplace=True)
+    dataset["Price"].fillna("No Price", inplace=True)  # Fill in Null/None values in the Excel sheet
 
     with ExcelWriter(r'C:\Users\Exo\Documents\Excel\ComputerPartsData.xlsx', mode='a', if_sheet_exists='overlay') as writer:
         dataset.to_excel(writer, startrow=0, header=None, index=False, sheet_name='Sheet1')
