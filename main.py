@@ -39,15 +39,15 @@ def scrape_data():
 
         dataset["Price"].fillna("No Price", inplace=True)  # Fill in Null/None values in the Excel sheet
 
-        with ExcelWriter('ComputerPartsData.xlsx') as writer:
-            dataset.to_excel(writer, startrow=0, index=False, sheet_name='Sheet1')
+        with ExcelWriter('ComputerPartsData.xlsx', mode="a", engine="openpyxl", if_sheet_exists="overlay") as writer:
+            dataset.to_excel(writer, startrow=writer.sheets['Sheet1'].max_row, index=False, sheet_name='Sheet1')
             print(dataset.head(10))
             #time.sleep(10)
             page_cap += 1
 
 def drop_data():  # This function drops all data within the Excel sheet.
     df = pd.read_excel("ComputerPartsData.xlsx", header=None)
-    df.drop(columns=[0,1,2], inplace=True, axis=1)
+    df.drop(columns=[0, 1, 2], inplace=True, axis=1)
     with ExcelWriter("ComputerPartsData.xlsx") as writer:
         df.to_excel(writer, index=False, sheet_name="Sheet1")
 
