@@ -2,6 +2,7 @@ import csv
 from bs4 import BeautifulSoup
 import requests
 import pandas as pd
+from openpyxl import Workbook
 from pandas import ExcelWriter
 import openpyxl
 from WebFunctions import NWF
@@ -12,24 +13,44 @@ headers = {
     "Accept-Language": "en",
 }
 
-page_cap = 1
+""" - If the sheet exists, delete
+    - create new sheet
+    - execute function
+    - """
 
-while page_cap != 6:
-    page = requests.get(NWF.url_changer(page_cap), headers=headers)
-    soup = BeautifulSoup(page.text, "html.parser")
-    cell = soup.find_all(class_='item-cell')  # This is a list
+"""if not pd.isnull(df.loc[1, 'Title']):  # This checks if cell 1 has a value
+    print("It is populated")
+else:
+    print("It is empty")"""
 
-    dataset = pd.DataFrame(
-    {
-            'Title': NWF.get_title(cell),
-            'Link': NWF.get_link(cell),
-            'Price': NWF.get_price(cell),
-    })
+def scrape_data():
+    page_cap = 1
+    while page_cap != 6:
+        page = requests.get(NWF.url_changer(page_cap), headers=headers)
+        soup = BeautifulSoup(page.text, "html.parser")
+        cell = soup.find_all(class_='item-cell')  # This is a list
 
-    dataset["Price"].fillna("No Price", inplace=True)  # Fill in Null/None values in the Excel sheet
+        dataset = pd.DataFrame(
+        {
+                'Title': NWF.get_title(cell),
+                'Link': NWF.get_link(cell),
+                'Price': NWF.get_price(cell),
+        })
 
-    with ExcelWriter(r'C:\Users\Exo\Documents\Excel\ComputerPartsData.xlsx', mode='a', if_sheet_exists='overlay') as writer:
-        dataset.to_excel(writer, startrow=0, header=None, index=False, sheet_name='Sheet1')
-    print(dataset.head(10))
-    time.sleep(10)
-    page_cap += 1
+        dataset["Price"].fillna("No Price", inplace=True)  # Fill in Null/None values in the Excel sheet
+
+        with ExcelWriter('ComputerPartsData.xlsx') as writer:
+            dataset.to_excel(writer, startrow=0, index=False, sheet_name='Sheet1')
+            print(dataset.head(10))
+            #time.sleep(10)
+            page_cap += 1
+
+def drop_data():  # This function drops all data within the Excel sheet.
+    df = pd.read_excel("ComputerPartsData.xlsx", header=None)
+    df.drop(columns=[0,1,2], inplace=True, axis=1)
+    with ExcelWriter("ComputerPartsData.xlsx") as writer:
+        df.to_excel(writer, index=False, sheet_name="Sheet1")
+
+
+scrape_data()
+#drop_data()
