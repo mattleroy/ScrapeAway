@@ -13,10 +13,11 @@ headers = {
     "Accept-Language": "en",
 }
 
-""" - If the sheet exists, delete
-    - create new sheet
-    - execute function
-    - """
+"""
+Next task:
+Detect if there is data in cell 1, if there is - drop data
+If there isn't scrape data.
+"""
 
 """if not pd.isnull(df.loc[1, 'Title']):  # This checks if cell 1 has a value
     print("It is populated")
@@ -40,7 +41,7 @@ def scrape_data():
         dataset["Price"].fillna("No Price", inplace=True)  # Fill in Null/None values in the Excel sheet
 
         with ExcelWriter('ComputerPartsData.xlsx', mode="a", engine="openpyxl", if_sheet_exists="overlay") as writer:
-            dataset.to_excel(writer, startrow=writer.sheets['Sheet1'].max_row, index=False, sheet_name='Sheet1')
+            dataset.to_excel(writer, startrow=writer.sheets['Sheet1'].max_row, index=False, sheet_name='Sheet1')  # arg: startrow=writer.sheets['Sheet1'].max_row is hugely important for appending to the END of the sheet. Without it, it will not work.
             print(dataset.head(10))
             #time.sleep(10)
             page_cap += 1
@@ -51,6 +52,3 @@ def drop_data():  # This function drops all data within the Excel sheet.
     with ExcelWriter("ComputerPartsData.xlsx") as writer:
         df.to_excel(writer, index=False, sheet_name="Sheet1")
 
-
-scrape_data()
-#drop_data()
