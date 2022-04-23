@@ -26,3 +26,5 @@ class NWF:  # Newegg
             url = s_url[0] + f"/page-{page}"
             page += 1
             return url
+
+

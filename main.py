@@ -14,15 +14,12 @@ headers = {
 }
 
 """
-Next task:
-Detect if there is data in cell 1, if there is - drop data
-If there isn't scrape data.
+Next Task:
+Refactor, make more efficient. Loosen coupling.
 """
 
-"""if not pd.isnull(df.loc[1, 'Title']):  # This checks if cell 1 has a value
-    print("It is populated")
-else:
-    print("It is empty")"""
+
+df = pd.read_excel("ComputerPartsData.xlsx")  # Read included Excel sheet to start program.
 
 def scrape_data():
     page_cap = 1
@@ -41,14 +38,22 @@ def scrape_data():
         dataset["Price"].fillna("No Price", inplace=True)  # Fill in Null/None values in the Excel sheet
 
         with ExcelWriter('ComputerPartsData.xlsx', mode="a", engine="openpyxl", if_sheet_exists="overlay") as writer:
-            dataset.to_excel(writer, startrow=writer.sheets['Sheet1'].max_row, index=False, sheet_name='Sheet1')  # arg: startrow=writer.sheets['Sheet1'].max_row is hugely important for appending to the END of the sheet. Without it, it will not work.
-            print(dataset.head(10))
-            #time.sleep(10)
-            page_cap += 1
+            dataset.to_excel(writer, startrow=writer.sheets['Sheet1'].max_row, index=False, sheet_name='Sheet1')
+            # arg: startrow=writer.sheets['Sheet1'].max_row is hugely important for appending to the END of the sheet.
+            # Without it, it will not work.
+
+            print(dataset.head(10))     # Can be deleted, just visualizes if data is printing.
+            time.sleep(10)              # Sleep here so website isn't throttled with requests.
+            page_cap += 1               # Adding 1 to page_cap so while loop ends.
 
 def drop_data():  # This function drops all data within the Excel sheet.
     df = pd.read_excel("ComputerPartsData.xlsx", header=None)
-    df.drop(columns=[0, 1, 2], inplace=True, axis=1)
+    df.drop(columns=[0, 1, 2], inplace=True, axis=1)        # Dropping all specified rows (first 3).
     with ExcelWriter("ComputerPartsData.xlsx") as writer:
         df.to_excel(writer, index=False, sheet_name="Sheet1")
+        # This ExcelWriter is writing "nothing" to the Excel sheet to erase all existing data.
 
+if df.notnull().values.any():   # This checks if the Excel sheet has existing content, if True, drops all of it.
+    drop_data()
+else:                           # This will populate data if empty.
+    scrape_data()
