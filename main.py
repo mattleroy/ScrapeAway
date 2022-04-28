@@ -16,6 +16,10 @@ headers = {
 """
 Next Task:
 Refactor, make more efficient. Loosen coupling.
+
+Add more methods to better slice string information for accurate naming.
+
+Gather data from spec tab on each individual page.
 """
 
 
@@ -43,7 +47,7 @@ def scrape_data():
             # Without it, it will not work.
 
             print(dataset.head(10))     # Can be deleted, just visualizes if data is printing.
-            time.sleep(10)              # Sleep here so website isn't throttled with requests.
+            #time.sleep(10)             # Sleep here so website isn't throttled with requests.
             page_cap += 1               # Adding 1 to page_cap so while loop ends.
 
 def drop_data():  # This function drops all data within the Excel sheet.
@@ -52,6 +56,7 @@ def drop_data():  # This function drops all data within the Excel sheet.
     with ExcelWriter("ComputerPartsData.xlsx") as writer:
         df.to_excel(writer, index=False, sheet_name="Sheet1")
         # This ExcelWriter is writing "nothing" to the Excel sheet to erase all existing data.
+
 
 if df.notnull().values.any():   # This checks if the Excel sheet has existing content, if True, drops all of it.
     drop_data()

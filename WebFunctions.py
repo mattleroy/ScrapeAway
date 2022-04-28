@@ -14,7 +14,7 @@ class NWF:  # Newegg
 
     @classmethod
     def get_price(cls, cell):
-        price = [item.find('li', {'class': 'price-current'}).strong for item in cell]
+        price = [item.find('li', {'class': 'price-current'}).get_text() for item in cell]
         return price
 
     @classmethod
@@ -22,9 +22,12 @@ class NWF:  # Newegg
         url = "https://www.newegg.com/Processors-Desktops/SubCategory/ID-343?Tid=7671"
         s_url = url.split('?')
 
-        for i in range(5):  # Only scraping 5 pages
-            url = s_url[0] + f"/page-{page}"
-            page += 1
-            return url
+        #for i in range(5):
+        url = s_url[0] + f"/page-{page}"
+        page += 1
+        return url
 
-
+    @classmethod
+    def clean_string(cls, string):
+        string = string.split(' ')
+        return string
