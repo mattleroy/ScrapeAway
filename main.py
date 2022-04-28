@@ -15,11 +15,10 @@ headers = {
 
 """
 Next Task:
-Refactor, make more efficient. Loosen coupling.
+Inside scrape data, need to add pagination for hopping between products, and product pages.
+This way we can gather main data - (title, price, link) and sub data - (brand, series, cores, threads, etc)
 
-Add more methods to better slice string information for accurate naming.
-
-Gather data from spec tab on each individual page.
+Format new get_functions in WebFunctions.py to get them working with new product pages.
 """
 
 
@@ -31,6 +30,10 @@ def scrape_data():
         page = requests.get(NWF.url_changer(page_cap), headers=headers)
         soup = BeautifulSoup(page.text, "html.parser")
         cell = soup.find_all(class_='item-cell')  # This is a list
+
+        #TODO after getting the main 3 pieces of item-cell data, change page to item to scrape sub-data (brand,series,etc)
+        #TODO create new dataframe to pull sub-data after formatting the new get_functions to work here
+        #TODO format df.Title to better represent the product being scraped
 
         dataset = pd.DataFrame(
         {

@@ -18,6 +18,36 @@ class NWF:  # Newegg
         return price
 
     @classmethod
+    def get_brand(cls, cell):
+        brand = [cell.find_all('td')[1].get_text()]
+        return brand
+
+    @classmethod
+    def get_series(cls, cell):
+        series = [cell.find_all('td')[3].get_text()]
+        return series
+
+    @classmethod
+    def get_socket(cls, cell):
+        socket = [cell.find_all('td')[0].get_text()]
+        return socket
+
+    @classmethod
+    def get_cores(cls, cell):
+        cores = [cell.find_all('td')[1].get_text()]
+        return cores
+
+    @classmethod
+    def get_threads(cls, cell):
+        threads = [cell.find_all('td')[2].get_text()]
+        return threads
+
+    @classmethod
+    def get_max_freq(cls, cell):
+        frequency = [cell.find_all('td')[2].get_text()]
+        return frequency
+
+    @classmethod
     def url_changer(cls, page):
         url = "https://www.newegg.com/Processors-Desktops/SubCategory/ID-343?Tid=7671"
         s_url = url.split('?')
