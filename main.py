@@ -26,7 +26,7 @@ df = pd.read_excel("ComputerPartsData.xlsx")  # Read included Excel sheet to sta
 
 def scrape_data():
     page_cap = 1
-    while page_cap != 6:
+    while page_cap != 2:
         page = requests.get(NWF.url_changer(page_cap), headers=headers)
         soup = BeautifulSoup(page.text, "html.parser")
         cell = soup.find_all(class_='item-cell')  # This is a list
@@ -35,12 +35,21 @@ def scrape_data():
         #TODO create new dataframe to pull sub-data after formatting the new get_functions to work here
         #TODO format df.Title to better represent the product being scraped
 
+        #TODO 1) Get URL
+        #TODO 2) Get item-cell
+            #TODO 2.1) Get data on index 0
+        #TODO 3) Move to next cell
+
         dataset = pd.DataFrame(
         {
                 'Title': NWF.get_title(cell),
                 'Link': NWF.get_link(cell),
                 'Price': NWF.get_price(cell),
+                'Series': NWF.get_series()
         })
+
+        for link in dataset["Link"]:
+            print(link)
 
         dataset["Price"].fillna("No Price", inplace=True)  # Fill in Null/None values in the Excel sheet
 
