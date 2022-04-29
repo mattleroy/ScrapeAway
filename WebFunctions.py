@@ -1,6 +1,16 @@
+import requests
+from bs4 import BeautifulSoup
+
+
 class NWF:  # Newegg
     def __init__(self, cell):
         self.cell = cell
+
+    @classmethod
+    def page_data(cls, link):
+        page = requests.get(link)
+        soup = BeautifulSoup(page.text, "html.parser")
+        return soup  # Returns WHOLE page of HTML, needs further processing to single out more specific data
 
     @classmethod
     def get_title(cls, cell):
@@ -23,8 +33,11 @@ class NWF:  # Newegg
         return brand
 
     @classmethod
-    def get_series(cls, cell):
-        series = [cell.find_all('td')[3].get_text()]
+    def get_series(cls, url):
+        soup = cls.page_data(url)  # Calling function to grab new URL for scraping the 'Specs' tables.
+        table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
+        details = [item.find('tbody') for item in table][1]             # Grabs the "Details" table to process
+        series = [details.find_all('td')[3].get_text()]                 # Returns "Series" (Ryzen 5, Ryzen 7, etc)
         return series
 
     @classmethod
@@ -51,8 +64,6 @@ class NWF:  # Newegg
     def url_changer(cls, page):
         url = "https://www.newegg.com/Processors-Desktops/SubCategory/ID-343?Tid=7671"
         s_url = url.split('?')
-
-        #for i in range(5):
         url = s_url[0] + f"/page-{page}"
         page += 1
         return url

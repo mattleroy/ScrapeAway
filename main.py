@@ -21,7 +21,6 @@ This way we can gather main data - (title, price, link) and sub data - (brand, s
 Format new get_functions in WebFunctions.py to get them working with new product pages.
 """
 
-
 df = pd.read_excel("ComputerPartsData.xlsx")  # Read included Excel sheet to start program.
 
 def scrape_data():
@@ -31,25 +30,24 @@ def scrape_data():
         soup = BeautifulSoup(page.text, "html.parser")
         cell = soup.find_all(class_='item-cell')  # This is a list
 
-        #TODO after getting the main 3 pieces of item-cell data, change page to item to scrape sub-data (brand,series,etc)
-        #TODO create new dataframe to pull sub-data after formatting the new get_functions to work here
-        #TODO format df.Title to better represent the product being scraped
-
-        #TODO 1) Get URL
-        #TODO 2) Get item-cell
-            #TODO 2.1) Get data on index 0
-        #TODO 3) Move to next cell
-
         dataset = pd.DataFrame(
         {
-                'Title': NWF.get_title(cell),
-                'Link': NWF.get_link(cell),
-                'Price': NWF.get_price(cell),
-                'Series': NWF.get_series()
+            'Title': NWF.get_title(cell),
+            'Link': NWF.get_link(cell),
+            'Price': NWF.get_price(cell),
         })
 
-        for link in dataset["Link"]:
-            print(link)
+        # dataset["Link"][0] This is the code that grabs a single link from the dict
+        print(NWF.get_series(dataset["Link"][0]))   # Eventually need to turn indices into a loop variable
+
+        #TODO Figure out how to best loop through dataset["Link"][i] so data is efficiently pulled
+        #TODO Debug appending to correct indices of pre-existing dataframe (Currently appends to bottom, when it should line up)
+        #TODO Get other get_functions operational to pull other sub-data (brand, cores, threads, etc)
+
+        #dataset2 = pd.DataFrame({
+        #    'Series': NWF.get_series(dataset["Link"][0])
+        #})
+        #print(dataset2)
 
         dataset["Price"].fillna("No Price", inplace=True)  # Fill in Null/None values in the Excel sheet
 
@@ -62,13 +60,13 @@ def scrape_data():
             #time.sleep(10)             # Sleep here so website isn't throttled with requests.
             page_cap += 1               # Adding 1 to page_cap so while loop ends.
 
+
 def drop_data():  # This function drops all data within the Excel sheet.
     df = pd.read_excel("ComputerPartsData.xlsx", header=None)
     df.drop(columns=[0, 1, 2], inplace=True, axis=1)        # Dropping all specified rows (first 3).
     with ExcelWriter("ComputerPartsData.xlsx") as writer:
         df.to_excel(writer, index=False, sheet_name="Sheet1")
         # This ExcelWriter is writing "nothing" to the Excel sheet to erase all existing data.
-
 
 if df.notnull().values.any():   # This checks if the Excel sheet has existing content, if True, drops all of it.
     drop_data()
