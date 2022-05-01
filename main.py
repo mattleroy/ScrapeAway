@@ -30,17 +30,21 @@ def scrape_data():
         soup = BeautifulSoup(page.text, "html.parser")
         cell = soup.find_all(class_='item-cell')  # This is a list
 
-        dataset = pd.DataFrame(
-        {
-            'Title': NWF.get_title(cell),
+        dataset = pd.DataFrame( # There is no loop happening here, remember the dataframe data is gathered via
+        {                       # method within WebFunctions that prints out a list of items from one request
+            'Title': NWF.get_title(cell),   # This creates the whole Excel sheet.
             'Link': NWF.get_link(cell),
             'Price': NWF.get_price(cell),
         })
 
-        # dataset["Link"][0] This is the code that grabs a single link from the dict
-        print(NWF.get_series(dataset["Link"][0]))   # Eventually need to turn indices into a loop variable
+        for url in dataset['Link']:
+            time.sleep(3)
+            print(NWF.get_series(url))
 
-        #TODO Figure out how to best loop through dataset["Link"][i] so data is efficiently pulled
+
+        # dataset["Link"][0] This is the code that grabs a single link from the dict
+        #print(NWF.get_series(dataset["Link"][0]))   # Eventually need to turn indices into a loop variable
+
         #TODO Debug appending to correct indices of pre-existing dataframe (Currently appends to bottom, when it should line up)
         #TODO Get other get_functions operational to pull other sub-data (brand, cores, threads, etc)
 
