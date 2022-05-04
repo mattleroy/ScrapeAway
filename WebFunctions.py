@@ -28,8 +28,11 @@ class NWF:  # Newegg
         return price
 
     @classmethod
-    def get_brand(cls, cell):
-        brand = [cell.find_all('td')[1].get_text()]
+    def get_brand(cls, url):
+        soup = cls.page_data(url)  # Calling function to grab new URL for scraping the 'Specs' tables.
+        table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
+        details = [item.find('tbody') for item in table][1]             # Grabs the "Details" table to process
+        brand = [details.find_all('td')[0].get_text()]                  # Returns "Series" (Ryzen 5, Ryzen 7, etc)
         return brand
 
     @classmethod
@@ -41,24 +44,51 @@ class NWF:  # Newegg
         return series
 
     @classmethod
-    def get_socket(cls, cell):
-        socket = [cell.find_all('td')[0].get_text()]
-        return socket
+    def get_socket(cls, url):
+        soup = cls.page_data(url)  # Calling function to grab new URL for scraping the 'Specs' tables.
+        table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
+        details = [item.find('tbody') for item in table][2]             # Grabs the "Details" table to process
+        if "Socket" in details.find("th").get_text():                   # Looks for matching "Socket" text to grab that item and pull the text
+            socket = details.find('td').get_text()
+            return socket
+        else:
+            return "Socket Not Found"
+
+    # th holds brand
+    # td holds AMD
 
     @classmethod
-    def get_cores(cls, cell):
-        cores = [cell.find_all('td')[1].get_text()]
-        return cores
+    def get_cores(cls, url):
+        soup = cls.page_data(url)  # Calling function to grab new URL for scraping the 'Specs' tables.
+        table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
+        details = [item.find('tbody') for item in table][2]             # Grabs the "Details" table to process
+        if "of Cores" in details.find("th").get_text():                   # Looks for matching "Cores" text to grab that item and pull the text
+            cores = details.find('td').get_text()
+            return cores
+        else:
+            return "Cores Not Found"
 
     @classmethod
-    def get_threads(cls, cell):
-        threads = [cell.find_all('td')[2].get_text()]
-        return threads
+    def get_threads(cls, url):
+        soup = cls.page_data(url)  # Calling function to grab new URL for scraping the 'Specs' tables.
+        table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
+        details = [item.find('tbody') for item in table][2]             # Grabs the "Details" table to process
+        if "of Threads" in details.find("th").get_text():               # Looks for matching "Threads" text to grab that item and pull the text
+            threads = details.find('td').get_text()
+            return threads
+        else:
+            return "Threads Not Found"
 
     @classmethod
-    def get_max_freq(cls, cell):
-        frequency = [cell.find_all('td')[2].get_text()]
-        return frequency
+    def get_max_freq(cls, url):
+        soup = cls.page_data(url)  # Calling function to grab new URL for scraping the 'Specs' tables.
+        table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
+        details = [item.find('tbody') for item in table][2]             # Grabs the "Details" table to process
+        if "Turbo" in details.find("th").get_text():                    # Looks for matching "Turbo" text to grab that item and pull the text
+            max_frequency = details.find('td').get_text()
+            return max_frequency
+        else:
+            return "Frequency Not Found"
 
     @classmethod
     def url_changer(cls, page):
