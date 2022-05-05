@@ -40,7 +40,7 @@ class NWF:  # Newegg
         soup = cls.page_data(url)  # Calling function to grab new URL for scraping the 'Specs' tables.
         table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
         details = [item.find('tbody') for item in table][1]             # Grabs the "Details" table to process
-        series = [details.find_all('td')[3].get_text()]                 # Returns "Series" (Ryzen 5, Ryzen 7, etc)
+        series = details.find_all('td')[3].get_text()                   # Returns "Series" (Ryzen 5, Ryzen 7, etc)
         return series
 
     @classmethod
