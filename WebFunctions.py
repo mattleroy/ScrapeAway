@@ -43,34 +43,37 @@ class NWF:  # Newegg
         series = details.find_all('td')[3].get_text()                   # Returns "Series" (Ryzen 5, Ryzen 7, etc)
         return series
 
-    @classmethod  # This method doesn't actually work, the indexes just happen to line up with the tag searches
+    @classmethod
     def get_socket(cls, url):
         soup = cls.page_data(url)  # Calling function to grab new URL for scraping the 'Specs' tables.
         table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
         details = [item.find('tbody') for item in table][2]             # Grabs the "Details" table to process
-        if "Socket" in details.find("th").get_text():                   # Looks for matching "Socket" text to grab that item and pull the text
-            socket = details.find('td').get_text()
-            return socket
-        else:
-            return "Socket Not Found"
+        socket = details.find_all('td')[0].get_text()
+        return socket
 
     @classmethod
     def get_cores(cls, url):
         soup = cls.page_data(url)  # Calling function to grab new URL for scraping the 'Specs' tables.
         table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
         details = [item.find('tbody') for item in table][2]             # Grabs the "Details" table to process
+        cores = details.find_all('td')[2].get_text()
+        return cores
 
     @classmethod
     def get_threads(cls, url):
         soup = cls.page_data(url)  # Calling function to grab new URL for scraping the 'Specs' tables.
         table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
         details = [item.find('tbody') for item in table][2]             # Grabs the "Details" table to process
+        threads = details.find_all('td')[3].get_text()
+        return threads
 
     @classmethod
     def get_max_freq(cls, url):
         soup = cls.page_data(url)  # Calling function to grab new URL for scraping the 'Specs' tables.
         table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
         details = [item.find('tbody') for item in table][2]             # Grabs the "Details" table to process
+        frequency = details.find_all('td')[5].get_text()
+        return frequency
 
     @classmethod
     def url_changer(cls, page):

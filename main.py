@@ -48,11 +48,15 @@ def scrape_data():
 
         def generate_dataframe_data():  # Move function to WebFunctions?
             data = {"Brand": [NWF.get_brand(url) for url in dataset['Link']],
-                    "Series": [NWF.get_series(url) for url in dataset['Link']]}
+                    "Series": [NWF.get_series(url) for url in dataset['Link']],
+                    "Socket": [NWF.get_socket(url) for url in dataset['Link']],
+                    "Cores": [NWF.get_cores(url) for url in dataset['Link']],
+                    "Threads": [NWF.get_threads(url) for url in dataset['Link']],
+                    "Max Frequency": [NWF.get_max_freq(url) for url in dataset['Link']]}
             return data
 
         dataset2 = pd.DataFrame(generate_dataframe_data())   # Declare dataframe outside of loop. Just add dictionary data to dataframe.
-        print(dataset2)
+        dataset2.to_csv("oi")
 
         """In other words, do not form a new DataFrame for each row. Instead,
         collect all the data in a list of dicts, and then call 
