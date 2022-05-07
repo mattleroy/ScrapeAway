@@ -48,14 +48,23 @@ def scrape_data():
             'Price': NWF.get_price(cell),
         })
 
-        for url in dataset['Link']:
-            #time.sleep(3)
-            print(NWF.get_series(url))
-            print(NWF.get_socket(url))
-            #print(NWF.get_cores(url))
-            #print(NWF.get_threads(url))
-            #print(NWF.get_max_freq(url))
+        def func():
+            data = {}
+            data["Brand"] = [NWF.get_brand(url) for url in dataset['Link']]   # Create dictionary within this loop to append data to, then add to df outside of loop
+            data["Series"] = [NWF.get_series(url) for url in dataset['Link']]   # Create dictionary within this loop to append data to, then add to df outside of loop
+            return data
 
+
+
+        dataset2 = pd.DataFrame(func())   # Declare dataframe outside of loop. Just add dictionary data to dataframe.
+        print(dataset2)
+
+        """In other words, do not form a new DataFrame for each row. Instead,
+        collect all the data in a list of dicts, and then call 
+        df = pd.DataFrame(data) once at the end, outside the loop.
+        
+        https://stackoverflow.com/questions/31674557/how-to-append-rows-in-a-pandas-dataframe-in-a-for-loop
+        """
 
         # dataset["Link"][0] This is the code that grabs a single link from the dict
         #print(NWF.get_series(dataset["Link"][0]))   # Eventually need to turn indices into a loop variable
@@ -63,11 +72,6 @@ def scrape_data():
         #TODO Turn "word search" into a function to plug a word into to use in "get_detail" functions
         #TODO Debug appending to correct indices of pre-existing dataframe (Currently appends to bottom, when it should line up)
         #TODO Get other get_functions operational to pull other sub-data (brand, cores, threads, etc)
-
-        #dataset2 = pd.DataFrame({
-        #    'Series': NWF.get_series(dataset["Link"][0])
-        #})
-        #print(dataset2)
 
         dataset["Price"].fillna("No Price", inplace=True)  # Fill in Null/None values in the Excel sheet
 
@@ -92,3 +96,4 @@ if df.notnull().values.any():   # This checks if the Excel sheet has existing co
     drop_data()
 else:                           # This will populate data if empty.
     scrape_data()
+
