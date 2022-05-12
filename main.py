@@ -13,25 +13,7 @@ headers = {
     "Accept-Language": "en",
 }
 
-"""
-Next Task:
-Inside scrape data, need to add pagination for hopping between products, and product pages.
-This way we can gather main data - (title, price, link) and sub data - (brand, series, cores, threads, etc)
-
-Format new get_functions in WebFunctions.py to get them working with new product pages.
-"""
-
 df = pd.read_excel("ComputerPartsData.xlsx")  # Read included Excel sheet to start program.
-
-"""
-Series
-Cores
-Threads
-Brand
-Max Turbo
-Operating Turbo
-Socket
-"""
 
 def scrape_data():
     page_cap = 1
@@ -62,11 +44,11 @@ def scrape_data():
 
         data = {
                 "Brand": [NWF.get_brand(url) for url in dataset['Link']],
-                "Series": [NWF.get_series(url) for url in dataset['Link']],
+                "Series": [NWF.get_name(url) for url in dataset['Link']],
                 "Socket": [NWF.get_socket(url) for url in dataset['Link']],
                 "Cores": [NWF.get_cores(url) for url in dataset['Link']],
                 "Threads": [NWF.get_threads(url) for url in dataset['Link']],
-                #"Max Frequency": [NWF.get_max_freq(url) for url in dataset['Link']]
+                "Max Frequency": [NWF.get_max_freq(url) for url in dataset['Link']]
                 }
 
         # Declare dataframe outside of loop. Just add dictionary data to dataframe.
@@ -76,6 +58,7 @@ def scrape_data():
         dataset.insert(4, "Socket", data['Socket'])
         dataset.insert(5, "Cores", data['Cores'])
         dataset.insert(6, "Threads ", data['Threads'])
+        dataset.insert(7, "Max Frequency ", data['Max Frequency'])
 
         """In other words, do not form a new DataFrame for each row. Instead,
         collect all the data in a list of dicts, and then call 
@@ -83,8 +66,6 @@ def scrape_data():
         
         https://stackoverflow.com/questions/31674557/how-to-append-rows-in-a-pandas-dataframe-in-a-for-loop
         """
-
-        #TODO Continue debugging get_... WebFunctions
 
         dataset["Price"].fillna("No Price", inplace=True)  # Fill in Null/None values in the Excel sheet
 
@@ -97,10 +78,9 @@ def scrape_data():
             #time.sleep(10)             # Sleep here so website isn't throttled with requests.
             page_cap += 1               # Adding 1 to page_cap so while loop ends.
 
-
 def drop_data():  # This function drops all data within the Excel sheet.
     df = pd.read_excel("ComputerPartsData.xlsx", header=None)
-    df.drop(columns=[0, 1, 2, 3, 4, 5, 6], inplace=True, axis=1)        # Dropping all specified rows (first 3).
+    df.drop(columns=[0, 1, 2, 3, 4, 5, 6, 7], inplace=True, axis=1)        # Dropping all specified rows (first 3).
     with ExcelWriter("ComputerPartsData.xlsx") as writer:
         df.to_excel(writer, index=False, sheet_name="Sheet1")
         # This ExcelWriter is writing "nothing" to the Excel sheet to erase all existing data.

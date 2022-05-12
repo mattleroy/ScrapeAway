@@ -29,51 +29,66 @@ class NWF:  # Newegg
 
     @classmethod
     def get_brand(cls, url):
-        soup = cls.page_data(url)  # Calling function to grab new URL for scraping the 'Specs' tables.
+        soup = cls.page_data(url)                                       # Calling function to grab new URL for scraping the 'Specs' tables.
         table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
         details = [item.find('tbody') for item in table][1]             # Grabs the "Details" table to process
         brand = details.find_all('td')[0].get_text()                    # Returns "Series" (Ryzen 5, Ryzen 7, etc)
         return brand
 
     @classmethod
-    def get_series(cls, url):
-        soup = cls.page_data(url)  # Calling function to grab new URL for scraping the 'Specs' tables.
+    def get_name(cls, url):
+        soup = cls.page_data(url)                                       # Calling function to grab new URL for scraping the 'Specs' tables.
         table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
-        details = [item.find('tbody') for item in table][1]             # Grabs the "Details" table to process
-        series = details.find_all('td')[3].get_text()                   # Returns "Series" (Ryzen 5, Ryzen 7, etc)
-        return series
+        details = [item.find('tbody') for item in table][1]             # Grabs the "Model" table to process
+        table_items = details.find_all('tr')                            # Creates list of rows in Model table
+        for ind, model_item in enumerate(table_items):                  # Gets index and item from "table_items"
+            model_item = model_item.find('th').get_text()               # Gets text of row item (Brand, Series, Name, etc)
+            if "Name" in model_item:                                    # Finds where "Name" appears in that loop
+                return table_items[ind].find('td').get_text()           # Returns the CPU that matches the "Name"
 
     @classmethod
     def get_socket(cls, url):
-        soup = cls.page_data(url)  # Calling function to grab new URL for scraping the 'Specs' tables.
+        soup = cls.page_data(url)                                       # Calling function to grab new URL for scraping the 'Specs' tables.
         table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
         details = [item.find('tbody') for item in table][2]             # Grabs the "Details" table to process
-        socket = details.find_all('td')[0].get_text()
-        return socket
+        table_items = details.find_all('tr')                            # Creates list of rows in Model table
+        for ind, model_item in enumerate(table_items):                  # Gets index and item from "table_items"
+            model_item = model_item.find('th').get_text()               # Gets text of row item (Brand, Series, Name, etc)
+            if "Socket" in model_item:                                  # Finds where "Socket" appears in that loop
+                return table_items[ind].find('td').get_text()           # Returns the CPU that matches the "Socket"
 
     @classmethod
     def get_cores(cls, url):
-        soup = cls.page_data(url)  # Calling function to grab new URL for scraping the 'Specs' tables.
+        soup = cls.page_data(url)                                       # Calling function to grab new URL for scraping the 'Specs' tables.
         table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
         details = [item.find('tbody') for item in table][2]             # Grabs the "Details" table to process
-        cores = details.find_all('td')[2].get_text()
-        return cores
+        table_items = details.find_all('tr')                            # Creates list of rows in Model table
+        for ind, model_item in enumerate(table_items):                  # Gets index and item from "table_items"
+            model_item = model_item.find('th').get_text()               # Gets text of row item (Brand, Series, Name, etc)
+            if "Cores" in model_item:                                   # Finds where "Cores" appears in that loop
+                return table_items[ind].find('td').get_text()           # Returns the CPU that matches the "Cores"
 
     @classmethod
     def get_threads(cls, url):
-        soup = cls.page_data(url)  # Calling function to grab new URL for scraping the 'Specs' tables.
+        soup = cls.page_data(url)                                       # Calling function to grab new URL for scraping the 'Specs' tables.
         table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
         details = [item.find('tbody') for item in table][2]             # Grabs the "Details" table to process
-        threads = details.find_all('td')[3].get_text()
-        return threads
+        table_items = details.find_all('tr')                            # Creates list of rows in Model table
+        for ind, model_item in enumerate(table_items):                  # Gets index and item from "table_items"
+            model_item = model_item.find('th').get_text()               # Gets text of row item (Brand, Series, Name, etc)
+            if "Threads" in model_item:                                 # Finds where "Threads" appears in that loop
+                return table_items[ind].find('td').get_text()           # Returns the CPU that matches the "Threads"
 
     @classmethod
     def get_max_freq(cls, url):
-        soup = cls.page_data(url)  # Calling function to grab new URL for scraping the 'Specs' tables.
+        soup = cls.page_data(url)                                       # Calling function to grab new URL for scraping the 'Specs' tables.
         table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
         details = [item.find('tbody') for item in table][2]             # Grabs the "Details" table to process
-        frequency = details.find_all('td')[5].get_text()
-        return frequency
+        table_items = details.find_all('tr')                            # Creates list of rows in Model table
+        for ind, model_item in enumerate(table_items):                  # Gets index and item from "table_items"
+            model_item = model_item.find('th').get_text()               # Gets text of row item (Brand, Series, Name, etc)
+            if "Frequency" in model_item:                               # Finds where "Frequency" appears in that loop
+                return table_items[ind].find('td').get_text()           # Returns the CPU that matches the "Frequency"
 
     @classmethod
     def url_changer(cls, page):
