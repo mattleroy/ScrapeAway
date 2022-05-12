@@ -7,6 +7,18 @@ class NWF:  # Newegg
         self.cell = cell
 
     @classmethod
+    def get_item_attribute(cls, url, string, ind):
+        tb_ind = ind
+        soup = cls.page_data(url)                                       # Calling function to grab new URL for scraping the 'Specs' tables.
+        table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
+        details = [item.find('tbody') for item in table][tb_ind]           # Grabs the "Details" table to process
+        table_items = details.find_all('tr')                            # Creates list of rows in Model table
+        for ind, model_item in enumerate(table_items):                  # Gets index and item from "table_items"
+            model_item = model_item.find('th').get_text()               # Gets text of row item (Brand, Series, Name, etc)
+            if string.capitalize() in model_item:                       # Converts string argument to actual string to search for in HTML
+                return table_items[ind].find('td').get_text()           # Returns the description of the string that was passed
+
+    @classmethod
     def page_data(cls, link):
         page = requests.get(link)
         soup = BeautifulSoup(page.text, "html.parser")

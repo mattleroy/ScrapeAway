@@ -42,19 +42,22 @@ def scrape_data():
         data.insert(0,'column_name',data2['c'])
         """
 
+        #TODO I suspect each list comprehension is looping through every page EVERY time. Highly inefficient.
+        #TODO Ensure each dictionary declaration happens on one page, THEN changes pages.
+
         data = {
-                "Brand": [NWF.get_brand(url) for url in dataset['Link']],
-                "Series": [NWF.get_name(url) for url in dataset['Link']],
-                "Socket": [NWF.get_socket(url) for url in dataset['Link']],
-                "Cores": [NWF.get_cores(url) for url in dataset['Link']],
-                "Threads": [NWF.get_threads(url) for url in dataset['Link']],
-                "Max Frequency": [NWF.get_max_freq(url) for url in dataset['Link']]
+                "Brand": [NWF.get_item_attribute(url, "Brand", 1) for url in dataset['Link']],
+                "Name": [NWF.get_item_attribute(url, "Name", 1) for url in dataset['Link']],
+                "Socket": [NWF.get_item_attribute(url, "Socket", 2) for url in dataset['Link']],                # Didn't work w ind=1 (expected)
+                "Cores": [NWF.get_item_attribute(url, "Cores", 2) for url in dataset['Link']],                  # Didn't work w ind=1 (expected)
+                "Threads": [NWF.get_item_attribute(url, "Threads", 2) for url in dataset['Link']],              # Didn't work w ind=1 (expected)
+                "Max Frequency": [NWF.get_item_attribute(url, "Frequency", 2) for url in dataset['Link']]       # Didn't work w ind=1 (expected)
                 }
 
         # Declare dataframe outside of loop. Just add dictionary data to dataframe.
 
         dataset.insert(0, "Brand", data['Brand'])
-        dataset.insert(1, "Title", data['Series'])
+        dataset.insert(1, "Title", data['Name'])
         dataset.insert(4, "Socket", data['Socket'])
         dataset.insert(5, "Cores", data['Cores'])
         dataset.insert(6, "Threads ", data['Threads'])
