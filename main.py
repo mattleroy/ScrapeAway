@@ -43,7 +43,8 @@ def scrape_data():
         """
 
         #TODO I suspect each list comprehension is looping through every page EVERY time. Highly inefficient.
-        #TODO Ensure each dictionary declaration happens on one page, THEN changes pages.
+        #TODO Change get_item_attribute function to gather all information
+        #TODO Probably will have to store data into a function, then apply data to dictionary, then apply to df
 
         data = {
                 "Brand": [NWF.get_item_attribute(url, "Brand", 1) for url in dataset['Link']],
