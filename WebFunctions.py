@@ -6,6 +6,34 @@ class NWF:  # Newegg
     def __init__(self, cell):
         self.cell = cell
 
+    def get_item_attribute2(cls):
+        index = 1
+        while index < 3:
+            page = requests.get("https://www.newegg.com/amd-ryzen-5-5600-ryzen-5-5000-series/p/N82E16819113736")
+            soup = BeautifulSoup(page.text, "html.parser")
+            table = soup.find_all('table',
+                                  {'class': 'table-horizontal'})  # Returns a list of the tables (Model, Details, etc)
+            details = [item.find('tbody') for item in table][index]  # Grabs the "Details" table to process
+            table_items = details.find_all('tr')  # Creates list of rows in Model table
+
+            attribute_list = []
+            search_list = ["Brand", "# of Cores", "# of Threads", "Frequency", "Socket", "Name"]
+            for ind, model_item in enumerate(table_items):  # Gets index and item from "table_items"
+                model_item = model_item.find('th').get_text()  # Gets plain-text of row item (Cores, Socket Type, Threads, etc)
+                for term in search_list:
+                    if term == model_item:
+                        attribute_list.append(table_items[ind].find('td').get_text())
+
+            index = 2
+            print(attribute_list)
+
+    def space_stripper(cls, word):  # Function created because trailing spaces in HTML text were preventing program from running
+        print(word)
+        word = word.split(' ')[-1]
+        # list[-1] returns last item
+        # list.pop() removes last item
+        print(word)
+
     @classmethod
     def get_item_attribute(cls, url, string, ind):
         tb_ind = ind
