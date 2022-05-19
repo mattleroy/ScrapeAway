@@ -6,56 +6,37 @@ class NWF:  # Newegg
     def __init__(self, cell):
         self.cell = cell
 
-    def get_item_attribute2(cls):
+    @classmethod
+    def get_item_attribute(cls, parsed_html):
         index = 1
+        attribute_list = []
         while index < 3:
-            page = requests.get("https://www.newegg.com/amd-ryzen-5-5600-ryzen-5-5000-series/p/N82E16819113736")
-            soup = BeautifulSoup(page.text, "html.parser")
-            table = soup.find_all('table',
-                                  {'class': 'table-horizontal'})  # Returns a list of the tables (Model, Details, etc)
-            details = [item.find('tbody') for item in table][index]  # Grabs the "Details" table to process
-            table_items = details.find_all('tr')  # Creates list of rows in Model table
+            table = parsed_html.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
+            details = [item.find('tbody') for item in table][index]         # Grabs whatever table the index passed gets from the list above
+            table_items = details.find_all('tr')                            # Creates list of rows in Model table
+                                                                            # Strings MUST be exactly matching Newegg table (Line below)
+            search_list = ["Brand", "# of Cores", "# of Threads", "Operating Frequency", "Max Turbo Frequency", "CPU Socket Type", "Name"]
+            for ind, model_item in enumerate(table_items):                  # Gets index and item from "table_items"
+                model_item = model_item.find('th').get_text()               # Gets plain-text of row item (Cores, Brand, Socket Type, Threads, etc)
+                for term in search_list:                                    # Uses the search_list to find the items we want from the site
+                    if term == cls.space_stripper(model_item):              # Compares our search_list term to the website term and pulls if matching
+                        attribute_list.append(table_items[ind].find('td').get_text())  # Append to list
 
-            attribute_list = []
-            search_list = ["Brand", "# of Cores", "# of Threads", "Frequency", "Socket", "Name"]
-            for ind, model_item in enumerate(table_items):  # Gets index and item from "table_items"
-                model_item = model_item.find('th').get_text()  # Gets plain-text of row item (Cores, Socket Type, Threads, etc)
-                for term in search_list:
-                    if term == model_item:
-                        attribute_list.append(table_items[ind].find('td').get_text())
+            index += 1
+        return attribute_list
 
-            index = 2
-            print(attribute_list)
-
+    @classmethod
     def space_stripper(cls, word):  # Function created because trailing spaces in HTML text were preventing program from running
-        print(word)
-        word = word.split(' ')[-1]
-        # list[-1] returns last item
-        # list.pop() removes last item
-        print(word)
+        word = word.split(' ')
+        word.pop()
+        word = ' '.join(word)
+        return word
 
     @classmethod
-    def get_item_attribute(cls, url, string, ind):
-        tb_ind = ind
-        soup = cls.page_data(url)                                       # Calling function to grab new URL for scraping the 'Specs' tables.
-        table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
-        details = [item.find('tbody') for item in table][tb_ind]           # Grabs the "Details" table to process
-        table_items = details.find_all('tr')                            # Creates list of rows in Model table
-        for ind, model_item in enumerate(table_items):                  # Gets index and item from "table_items"
-            model_item = model_item.find('th').get_text()               # Gets text of row item (Brand, Series, Name, etc)
-            if string.capitalize() in model_item:                       # Converts string argument to actual string to search for in HTML
-                return table_items[ind].find('td').get_text()           # Returns the description of the string that was passed
-
-    @classmethod
-    def page_data(cls, link):
-        page = requests.get(link)
+    def page_data(cls, url):
+        page = requests.get(url)
         soup = BeautifulSoup(page.text, "html.parser")
         return soup  # Returns WHOLE page of HTML, needs further processing to single out more specific data
-
-    @classmethod
-    def get_title(cls, cell):
-        title = [item.find(class_="item-title").get_text().split('-')[0] for item in cell]
-        return title
 
     @classmethod
     def get_link(cls, cell):
@@ -86,49 +67,8 @@ class NWF:  # Newegg
             if "Name" in model_item:                                    # Finds where "Name" appears in that loop
                 return table_items[ind].find('td').get_text()           # Returns the CPU that matches the "Name"
 
-    @classmethod
-    def get_socket(cls, url):
-        soup = cls.page_data(url)                                       # Calling function to grab new URL for scraping the 'Specs' tables.
-        table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
-        details = [item.find('tbody') for item in table][2]             # Grabs the "Details" table to process
-        table_items = details.find_all('tr')                            # Creates list of rows in Model table
-        for ind, model_item in enumerate(table_items):                  # Gets index and item from "table_items"
-            model_item = model_item.find('th').get_text()               # Gets text of row item (Brand, Series, Name, etc)
-            if "Socket" in model_item:                                  # Finds where "Socket" appears in that loop
-                return table_items[ind].find('td').get_text()           # Returns the CPU that matches the "Socket"
 
-    @classmethod
-    def get_cores(cls, url):
-        soup = cls.page_data(url)                                       # Calling function to grab new URL for scraping the 'Specs' tables.
-        table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
-        details = [item.find('tbody') for item in table][2]             # Grabs the "Details" table to process
-        table_items = details.find_all('tr')                            # Creates list of rows in Model table
-        for ind, model_item in enumerate(table_items):                  # Gets index and item from "table_items"
-            model_item = model_item.find('th').get_text()               # Gets text of row item (Brand, Series, Name, etc)
-            if "Cores" in model_item:                                   # Finds where "Cores" appears in that loop
-                return table_items[ind].find('td').get_text()           # Returns the CPU that matches the "Cores"
 
-    @classmethod
-    def get_threads(cls, url):
-        soup = cls.page_data(url)                                       # Calling function to grab new URL for scraping the 'Specs' tables.
-        table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
-        details = [item.find('tbody') for item in table][2]             # Grabs the "Details" table to process
-        table_items = details.find_all('tr')                            # Creates list of rows in Model table
-        for ind, model_item in enumerate(table_items):                  # Gets index and item from "table_items"
-            model_item = model_item.find('th').get_text()               # Gets text of row item (Brand, Series, Name, etc)
-            if "Threads" in model_item:                                 # Finds where "Threads" appears in that loop
-                return table_items[ind].find('td').get_text()           # Returns the CPU that matches the "Threads"
-
-    @classmethod
-    def get_max_freq(cls, url):
-        soup = cls.page_data(url)                                       # Calling function to grab new URL for scraping the 'Specs' tables.
-        table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
-        details = [item.find('tbody') for item in table][2]             # Grabs the "Details" table to process
-        table_items = details.find_all('tr')                            # Creates list of rows in Model table
-        for ind, model_item in enumerate(table_items):                  # Gets index and item from "table_items"
-            model_item = model_item.find('th').get_text()               # Gets text of row item (Brand, Series, Name, etc)
-            if "Frequency" in model_item:                               # Finds where "Frequency" appears in that loop
-                return table_items[ind].find('td').get_text()           # Returns the CPU that matches the "Frequency"
 
     @classmethod
     def url_changer(cls, page):
@@ -139,6 +79,6 @@ class NWF:  # Newegg
         return url
 
     @classmethod
-    def clean_string(cls, string):
-        string = string.split(' ')
-        return string
+    def item_url_changer(cls, list):
+        for url in list:
+            return url

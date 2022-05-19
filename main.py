@@ -18,17 +18,36 @@ df = pd.read_excel("ComputerPartsData.xlsx")  # Read included Excel sheet to sta
 def scrape_data():
     page_cap = 1
     while page_cap != 2:
-        page = requests.get(NWF.url_changer(page_cap), headers=headers)
+        page = requests.get(NWF.url_changer(page_cap), headers=headers) # This changes PAGES, NOT items
         soup = BeautifulSoup(page.text, "html.parser")
-        cell = soup.find_all(class_='item-cell')  # This is a list
+        cell = soup.find_all(class_='item-cell')    # This is a list
 
-        dataset = pd.DataFrame({
-            #'Title': NWF.get_title(cell),   # There is no loop happening here, remember the dataframe data is gathered via
-            'Link': NWF.get_link(cell),     # method within WebFunctions that prints out a list of items from one request
-            'Price': NWF.get_price(cell),   # This creates the whole Excel sheet in one go
-        })
+        link_list = NWF.get_link(cell)              # List of links to loop through
+        dataset = pd.DataFrame                      # Declare new DataFrame
 
-        """
+        #TODO Add get_price somewhere
+        #TODO Do page switching and link gathering at the top of this while
+        #TODO only pass in parsed html variable to get_item_attribute
+
+        for url in link_list:
+            html = NWF.page_data(url)
+            dictionary_data = NWF.get_item_attribute(html)
+
+            data = {
+            "Brand": str(dictionary_data[0]),
+            "Name": str(dictionary_data[1]),
+            "Socket": str(dictionary_data[2]),
+            "Cores": str(dictionary_data[3]),
+            "Threads": str(dictionary_data[4]),
+            "Operating Frequency": str(dictionary_data[5]),
+            "Max Frequency": str(dictionary_data[6]),
+            }
+
+            print(data)
+
+scrape_data()
+"""
+        
         data = pd.DataFrame({
             "a":[1,2,3,4],
             "b":[5,6,7,8],
@@ -40,38 +59,20 @@ def scrape_data():
             })
         
         data.insert(0,'column_name',data2['c'])
-        """
-
-        #TODO I suspect each list comprehension is looping through every page EVERY time. Highly inefficient.
-        #TODO Change get_item_attribute function to gather all information
-        #TODO Probably will have to store data into a function, then apply data to dictionary, then apply to df
-
-        data = {
-                "Brand": [NWF.get_item_attribute(url, "Brand", 1) for url in dataset['Link']],
-                "Name": [NWF.get_item_attribute(url, "Name", 1) for url in dataset['Link']],
-                "Socket": [NWF.get_item_attribute(url, "Socket", 2) for url in dataset['Link']],                # Didn't work w ind=1 (expected)
-                "Cores": [NWF.get_item_attribute(url, "Cores", 2) for url in dataset['Link']],                  # Didn't work w ind=1 (expected)
-                "Threads": [NWF.get_item_attribute(url, "Threads", 2) for url in dataset['Link']],              # Didn't work w ind=1 (expected)
-                "Max Frequency": [NWF.get_item_attribute(url, "Frequency", 2) for url in dataset['Link']]       # Didn't work w ind=1 (expected)
-                }
+        
 
         # Declare dataframe outside of loop. Just add dictionary data to dataframe.
 
-        dataset.insert(0, "Brand", data['Brand'])
-        dataset.insert(1, "Title", data['Name'])
-        dataset.insert(4, "Socket", data['Socket'])
-        dataset.insert(5, "Cores", data['Cores'])
-        dataset.insert(6, "Threads ", data['Threads'])
-        dataset.insert(7, "Max Frequency ", data['Max Frequency'])
+        #dataset.insert(0, "Brand", data['Brand'])
 
-        """In other words, do not form a new DataFrame for each row. Instead,
+        In other words, do not form a new DataFrame for each row. Instead,
         collect all the data in a list of dicts, and then call 
         df = pd.DataFrame(data) once at the end, outside the loop.
         
         https://stackoverflow.com/questions/31674557/how-to-append-rows-in-a-pandas-dataframe-in-a-for-loop
-        """
+        
 
-        dataset["Price"].fillna("No Price", inplace=True)  # Fill in Null/None values in the Excel sheet
+        #dataset["Price"].fillna("No Price", inplace=True)  # Fill in Null/None values in the Excel sheet
 
         with ExcelWriter('ComputerPartsData.xlsx', mode="a", engine="openpyxl", if_sheet_exists="overlay") as writer:
             dataset.to_excel(writer, startrow=writer.sheets['Sheet1'].max_row, index=False, sheet_name='Sheet1')
@@ -94,3 +95,4 @@ if df.notnull().values.any():   # This checks if the Excel sheet has existing co
 else:                           # This will populate data if empty.
     scrape_data()
 
+"""
