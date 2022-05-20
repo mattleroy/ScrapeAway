@@ -2,9 +2,19 @@ import requests
 from bs4 import BeautifulSoup
 
 
+
 class NWF:  # Newegg
     def __init__(self, cell):
         self.cell = cell
+
+    @classmethod
+    def page_changer(cls, url):
+
+
+        page = requests.get(NWF.url_changer(), headers=headers)             # This changes PAGES, NOT items
+        soup = BeautifulSoup(page.text, "html.parser")
+        cell = soup.find_all(class_='item-cell')                            # This is a list of item listings
+
 
     @classmethod
     def get_item_attribute(cls, parsed_html):
@@ -67,15 +77,10 @@ class NWF:  # Newegg
             if "Name" in model_item:                                    # Finds where "Name" appears in that loop
                 return table_items[ind].find('td').get_text()           # Returns the CPU that matches the "Name"
 
-
-
-
     @classmethod
-    def url_changer(cls, page):
-        url = "https://www.newegg.com/Processors-Desktops/SubCategory/ID-343?Tid=7671"
+    def url_changer(cls, url, page_num):
         s_url = url.split('?')
-        url = s_url[0] + f"/page-{page}"
-        page += 1
+        url = s_url[0] + f"/page-{page_num}"
         return url
 
     @classmethod

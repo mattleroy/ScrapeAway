@@ -7,43 +7,43 @@ from pandas import ExcelWriter
 import openpyxl
 from WebFunctions import NWF
 import time
+from itertools import zip_longest
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.60 Safari/537.36",
     "Accept-Language": "en",
 }
-
 df = pd.read_excel("ComputerPartsData.xlsx")  # Read included Excel sheet to start program.
 
 def scrape_data():
-    page_cap = 1
-    while page_cap != 2:
-        page = requests.get(NWF.url_changer(page_cap), headers=headers) # This changes PAGES, NOT items
+
+    #  Base url that will be altered at the bottom of while to change pages
+    url = "https://www.newegg.com/Processors-Desktops/SubCategory/ID-343?Tid=7671"
+    page_num = 1
+
+    while page_num != 2:
+
+        page = requests.get(NWF.url_changer(url, page_num), headers=headers)     # This changes PAGES, NOT items
         soup = BeautifulSoup(page.text, "html.parser")
-        cell = soup.find_all(class_='item-cell')    # This is a list
+        cell = soup.find_all(class_='item-cell')                            # This is a list of item listings
 
         link_list = NWF.get_link(cell)              # List of links to loop through
         dataset = pd.DataFrame                      # Declare new DataFrame
 
         #TODO Add get_price somewhere
         #TODO Do page switching and link gathering at the top of this while
-        #TODO only pass in parsed html variable to get_item_attribute
 
         for url in link_list:
             html = NWF.page_data(url)
             dictionary_data = NWF.get_item_attribute(html)
 
-            data = {
-            "Brand": str(dictionary_data[0]),
-            "Name": str(dictionary_data[1]),
-            "Socket": str(dictionary_data[2]),
-            "Cores": str(dictionary_data[3]),
-            "Threads": str(dictionary_data[4]),
-            "Operating Frequency": str(dictionary_data[5]),
-            "Max Frequency": str(dictionary_data[6]),
-            }
+            keys = ["Brand", "Name", "Socket", "Cores", "Threads", "Operating Frequency", "Max Frequency"]
 
-            print(data)
+            data = {k: v for k, v in zip_longest(keys, dictionary_data, fillvalue="DNE")}  # An error will occur if vals is larger than keys
+
+        #TODO Implement Dataframe
+
+    page_num += 1
 
 scrape_data()
 """
