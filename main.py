@@ -21,29 +21,47 @@ def scrape_data():
     url = "https://www.newegg.com/Processors-Desktops/SubCategory/ID-343?Tid=7671"
     page_num = 1
 
+
     while page_num != 2:
 
-        page = requests.get(NWF.url_changer(url, page_num), headers=headers)     # This changes PAGES, NOT items
+        page = requests.get(NWF.url_changer(url, page_num), headers=headers)    # This changes PAGES, NOT items
         soup = BeautifulSoup(page.text, "html.parser")
-        cell = soup.find_all(class_='item-cell')                            # This is a list of item listings
+        cell = soup.find_all(class_='item-cell')                                # This is a list of item listings
 
-        link_list = NWF.get_link(cell)              # List of links to loop through
-        dataset = pd.DataFrame                      # Declare new DataFrame
+        link_list = NWF.get_link(cell)  # List of links to loop through
 
-        #TODO Add get_price somewhere
-        #TODO Do page switching and link gathering at the top of this while
 
-        for url in link_list:
+        dictionary_data = []            # List of lists of data - (AMD, Ryzen 5 5600, Socket AM4, etc....)
+
+        for url in link_list:           # page_data finds entire page html, get_item_attribute finds item specific html
             html = NWF.page_data(url)
-            dictionary_data = NWF.get_item_attribute(html)
+            dictionary_data.append(NWF.get_item_attribute(html))
 
-            keys = ["Brand", "Name", "Socket", "Cores", "Threads", "Operating Frequency", "Max Frequency"]
+        data = {"Brand": [],
+                "Name": [],
+                "Socket": [],
+                "Cores": [],
+                "Threads": [],
+                "Operating Frequency": [],
+                "Max Operating Frequency": [],
+                }
 
-            data = {k: v for k, v in zip_longest(keys, dictionary_data, fillvalue="DNE")}  # An error will occur if vals is larger than keys
 
-        #TODO Implement Dataframe
+        for item_attr in dictionary_data:
+            try:
+                data["Brand"].append(item_attr[0])
+                data["Name"].append(item_attr[1])
+                data["Socket"].append(item_attr[2])
+                data["Cores"].append(item_attr[3])
+                data["Threads"].append(item_attr[4])
+                data["Operating Frequency"].append(item_attr[5])
+                data["Max Operating Frequency"].append(item_attr[6])
+            except IndexError:
+                data["Max Operating Frequency"].append("DNE")
 
-    page_num += 1
+
+
+        page_num += 1
 
 scrape_data()
 """
