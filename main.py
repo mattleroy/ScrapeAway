@@ -61,9 +61,10 @@ def scrape_data():
         dataset = pd.DataFrame(data)  # dataset is the dataframe, data is the dictionary
 
         with ExcelWriter('ComputerPartsData.xlsx', mode="a", engine="openpyxl", if_sheet_exists="overlay") as writer:
-            dataset.to_excel(writer, startrow=writer.sheets['Sheet1'].max_row, index=False, sheet_name='Sheet1')
+            dataset.to_excel(writer, index=False, sheet_name='Sheet1')
             # arg: startrow=writer.sheets['Sheet1'].max_row is hugely important for appending to the END of the sheet.
-            # Without it, it will not work.
+            # Without it, it will not work. #startrow=writer.sheets['Sheet1'].max_row
+            # That line, did however cause an empty row at the top of XL sheet
 
 """
         data = pd.DataFrame({
@@ -84,10 +85,11 @@ def scrape_data():
         #dataset["Price"].fillna("No Price", inplace=True)  # Fill in Null/None values in the Excel sheet
 
 
-
 def drop_data():  # This function drops all data within the Excel sheet.
-    df = pd.read_excel("ComputerPartsData.xlsx", header=None)
-    df.drop(columns=[0, 1, 2, 3, 4, 5, 6, 7], inplace=True, axis=1)        # Dropping all specified rows (first 7).
+    df = pd.read_excel("ComputerPartsData.xlsx")
+    column_count = df.shape                             # Returns tuple of ordered pair of (rows, columns) This is for the next line
+    cols = [i for i in range(0, column_count[1])]       # Comprehension to find how many columns exist in sheet
+    df.drop(df.columns[cols], inplace=True, axis=1)     # Drops the number of columns specified by cols
     with ExcelWriter("ComputerPartsData.xlsx") as writer:
         df.to_excel(writer, index=False, sheet_name="Sheet1")
         # This ExcelWriter is writing "nothing" to the Excel sheet to erase all existing data.
