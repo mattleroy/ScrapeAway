@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 
+# TODO Make "Exclude" command so user can feed in some commands to hide certain products that don't match
+# https://www.newegg.com/Desktop-Graphics-Cards/SubCategory/ID-48?Tid=7709  Graphics cards
 
 
 class NWF:  # Newegg
@@ -55,7 +57,7 @@ class NWF:  # Newegg
 
     @classmethod
     def get_price(cls, cell):
-        price = [item.find('li', {'class': 'price-current'}).get_text() for item in cell]
+        price = [item.find('li', {'class': 'price-current'}).strong.get_text() for item in cell]
         return price
 
     @classmethod
