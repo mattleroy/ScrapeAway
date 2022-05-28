@@ -21,24 +21,26 @@ def scrape_data():
     url = "https://www.newegg.com/Processors-Desktops/SubCategory/ID-343?Tid=7671"
     page_num = 1
 
+    #TODO Fix pagination. Program currently does not change pages correctly - or it overwrites data from the newest page
     while page_num != 2:
 
         # This block grabs the initial webpage of all the products
         page = requests.get(NWF.url_changer(url, page_num), headers=headers)    # This changes pages
         soup = BeautifulSoup(page.text, "html.parser")
         cell = soup.find_all(class_='item-cell')                                # This is a list
-        prices = NWF.get_price(cell)
-        # TODO FIX PRICES APPENDS WHOLE LIST INSTEAD OF SPECIFIC PRICE
+        prices = NWF.get_price(cell)  # This is a list of prices
+
         # This block grabs all the links of the products on the page, and feeds it into a list to loop through
-        link_list = NWF.get_link(cell)  # List of links to loop through
-        dictionary_data = []            # Declaring list we will be appending data to (Brand, Cores, Threads, etc..)
+        link_list = NWF.get_link(cell)                              # List of links to loop through
+        dictionary_data = []                                        # Declaring list we will be appending data to (Brand, Cores, Threads, etc..)
 
         # This block loops through individual product pages and appends data to our list which is used to create a dict
         for url in link_list:                                       # Looping through our list of links established above with link_list
             html = NWF.page_data(url)                               # page_data returns soup of a given url
-            dictionary_data.append(NWF.get_item_attribute(html))    # get_item_attribute gets all relevant data for us
+            dictionary_data.append(NWF.get_item_attribute(html))    # get_item_attribute returns a list of all relevant data
 
         # The data we gathered above is placed into the dictionary declared here
+        # But we are just creating the dict here
         data = {"Brand": [],
                 "Name": [],
                 "Price": [],
@@ -50,11 +52,12 @@ def scrape_data():
                 }
 
         # This block appends all the data from dictionary_data to our new data dict above. This is for use in a DataFrame
-        for item_attr in dictionary_data:
+        # Using the zip method to loop through both the price list and the dictionary data.
+        for item_attr, price in zip(dictionary_data, prices):
             try:
                 data["Brand"].append(item_attr[0])
                 data["Name"].append(item_attr[1])
-                data["Price"].append(item_attr)
+                data["Price"].append("$" + price)
                 data["Socket"].append(item_attr[2])
                 data["Cores"].append(item_attr[3])
                 data["Threads"].append(item_attr[4])
@@ -64,10 +67,9 @@ def scrape_data():
                 data["Max Operating Frequency"].append("DNE")
 
         page_num += 1   # Increment page
-
         dataset = pd.DataFrame(data)  # dataset is the dataframe, data is the dictionary
 
-        # Write data to excel sheet
+        # Write DataFrame to Excel sheet
         with ExcelWriter('ComputerPartsData.xlsx', mode="a", engine="openpyxl", if_sheet_exists="overlay") as writer:
             dataset.to_excel(writer, index=False, sheet_name='Sheet1')
             # arg: startrow=writer.sheets['Sheet1'].max_row is hugely important for appending to the END of the sheet.
@@ -89,14 +91,13 @@ def scrape_data():
 """
 
         #dataset.insert(0, "Brand", data['Brand'])
-
         #dataset["Price"].fillna("No Price", inplace=True)  # Fill in Null/None values in the Excel sheet
 
 def drop_data():  # This function drops all data within the Excel sheet.
     df = pd.read_excel("ComputerPartsData.xlsx")
-    column_count = df.shape                             # Returns tuple of ordered pair of (rows, columns) This is for the next line
-    cols = [i for i in range(0, column_count[1])]       # Comprehension to set how many columns exist in sheet
-    df.drop(df.columns[cols], inplace=True, axis=1)     # Drops the number of columns specified by cols
+    column_count = df.shape                                 # Returns tuple of ordered pair of (rows, columns) This is for the next line
+    cols = [i for i in range(0, column_count[1])]           # Comprehension to set how many columns exist in sheet
+    df.drop(df.columns[cols], inplace=True, axis=1)         # Drops the number of columns specified by cols
     with ExcelWriter("ComputerPartsData.xlsx") as writer:
         df.to_excel(writer, index=False, sheet_name="Sheet1")
         # This ExcelWriter is writing "nothing" to the Excel sheet to erase all existing data.
