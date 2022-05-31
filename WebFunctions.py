@@ -11,12 +11,16 @@ class NWF:  # Newegg
 
     @classmethod
     def page_changer(cls, url):
-
-
         page = requests.get(NWF.url_changer(), headers=headers)             # This changes PAGES, NOT items
         soup = BeautifulSoup(page.text, "html.parser")
         cell = soup.find_all(class_='item-cell')                            # This is a list of item listings
 
+    @classmethod
+    def item_switcher(cls):
+        dictionary_switcher = {
+            "CPU": {"cpu_search_list": ["Brand", "# of Cores", "# of Threads", "Operating Frequency", "Max Turbo Frequency", "CPU Socket Type", "Name"]},
+            "GPU": {"gpu_search_list": ["Brand", "GPU", "Memory Size", "Memory Type", "HDMI", "DisplayPort", "Max Resolution"]},
+        }  # Access nested dict like this: dict[first_key][second_key]
 
     @classmethod
     def get_item_attribute(cls, parsed_html):
@@ -25,7 +29,7 @@ class NWF:  # Newegg
         while index < 3:
             table = parsed_html.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
             details = [item.find('tbody') for item in table][index]         # Grabs whatever table the index passed gets from the list above
-            table_items = details.find_all('tr')                            # Creates list of rows in Model table
+            table_items = details.find_all('tr')                            # Creates list of rows from Model table
                                                                             # Strings MUST be exactly matching Newegg table (Line below)
             search_list = ["Brand", "# of Cores", "# of Threads", "Operating Frequency", "Max Turbo Frequency", "CPU Socket Type", "Name"]
             for ind, model_item in enumerate(table_items):                  # Gets index and item from "table_items"
@@ -61,6 +65,12 @@ class NWF:  # Newegg
         return price
 
     @classmethod
+    def url_changer(cls, url, page_num):
+        s_url = url.split('?')
+        url = s_url[0] + f"/page-{page_num}"
+        return url
+
+    @classmethod    # UNUSED METHOD, KEPT FOR REFERENCE
     def get_brand(cls, url):
         soup = cls.page_data(url)                                       # Calling function to grab new URL for scraping the 'Specs' tables.
         table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
@@ -68,7 +78,7 @@ class NWF:  # Newegg
         brand = details.find_all('td')[0].get_text()                    # Returns "Series" (Ryzen 5, Ryzen 7, etc)
         return brand
 
-    @classmethod
+    @classmethod    # UNUSED METHOD, KEPT FOR REFERENCE
     def get_name(cls, url):
         soup = cls.page_data(url)                                       # Calling function to grab new URL for scraping the 'Specs' tables.
         table = soup.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
@@ -78,14 +88,3 @@ class NWF:  # Newegg
             model_item = model_item.find('th').get_text()               # Gets text of row item (Brand, Series, Name, etc)
             if "Name" in model_item:                                    # Finds where "Name" appears in that loop
                 return table_items[ind].find('td').get_text()           # Returns the CPU that matches the "Name"
-
-    @classmethod
-    def url_changer(cls, url, page_num):
-        s_url = url.split('?')
-        url = s_url[0] + f"/page-{page_num}"
-        return url
-
-    @classmethod
-    def item_url_changer(cls, list):
-        for url in list:
-            return url
