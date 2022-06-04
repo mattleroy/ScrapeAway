@@ -15,7 +15,7 @@ headers = {
 }
 df = pd.read_excel("ComputerPartsData.xlsx")  # Read included Excel sheet to start program.
 
-cpu_url = "https://www.newegg.com/Processors-Desktops/SubCategory/ID-343?Tid=7671"
+cpu_url = "https://www.newegg.com/Processors-Desktops/SubCategory/ID-343/page-1"
 gpu_url = "https://www.newegg.com/Desktop-Graphics-Cards/SubCategory/ID-48?Tid=7709"
 
 # 1) choose CPU
@@ -36,9 +36,7 @@ def scrape_data():
     prices = []
     #  Base url that will be altered at the bottom of while to change pages
 
-
-    #TODO Fix pagination. Program currently does not change pages correctly - or it overwrites data from the newest page
-    while page_num != 3:
+    while page_num != 2:
 
         # This block grabs the initial webpage of all the products
         page = requests.get(page_url, headers=headers)
@@ -51,13 +49,13 @@ def scrape_data():
 
         # This block loops through individual product pages and appends data to our list which is used to create a dict
         for url in link_list:                                       # Looping through our list of links established above with link_list
+            time.sleep(2)
             html = NWF.page_data(url)                               # page_data returns soup of a given url
             dictionary_data.append(NWF.get_item_attribute(html))    # get_item_attribute returns a list of all relevant data (list of lists, 1 list per item)
 
         page_num += 1   # Increment page
-        string_url = page_url.split('?')
-        page_url = string_url[0] + f"/page-{page_num}"
-        #TODO Page switcher goes here (ex: all CPU page switches here)
+        split_list = page_url.split('/')[:-1]
+        page_url = '/'.join(split_list) + f"/page-{page_num}"
         #TODO Need loop here to to go through pages (code WILL keep moving down if no loop is here)
 
     # The data we gathered above is placed into the dictionary declared here
@@ -89,17 +87,16 @@ def scrape_data():
             data["Max Operating Frequency"].append("DNE")
 
     dataset = pd.DataFrame(data)  # dataset is the dataframe, data is the dictionary
-
     # Write DataFrame to Excel sheet
-    with ExcelWriter('ComputerPartsData.xlsx', mode="a", engine="openpyxl", if_sheet_exists="overlay") as writer:
+    with ExcelWriter('ComputerPartsData.xlsx', mode="a", engine="openpyxl", if_sheet_exists="replace") as writer:
         dataset.to_excel(writer, index=False, sheet_name='Sheet1')
         # arg: startrow=writer.sheets['Sheet1'].max_row is hugely important for appending to the END of the sheet.
         # Without it, it will not work. #startrow=writer.sheets['Sheet1'].max_row
         # That line, did however cause an empty row at the top of XL sheet
 
-    #TODO Need page changer down here
+    #TODO Product changer down here (CPU --> GPU)
 
-def drop_data():  # This function drops all data within the Excel sheet.
+"""def drop_data():  # This function drops all data within the Excel sheet.
     df = pd.read_excel("ComputerPartsData.xlsx")
     column_count = df.shape                                 # Returns tuple of ordered pair of (rows, columns) This is for the next line
     cols = [i for i in range(0, column_count[1])]           # Comprehension to set how many columns exist in sheet
@@ -113,3 +110,5 @@ if df.notnull().values.any():   # This checks if the Excel sheet has existing co
 else:                           # This will populate data if empty.
     scrape_data()
 
+"""
+scrape_data()
