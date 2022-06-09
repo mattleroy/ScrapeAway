@@ -1,16 +1,18 @@
-import csv
 from bs4 import BeautifulSoup
 import requests
 import pandas as pd
-from openpyxl import Workbook
 from pandas import ExcelWriter
-import openpyxl
+from fake_useragent import UserAgent
 from WebFunctions import NWF
 import time
+import random
 from itertools import zip_longest
 
+# Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.60 Safari/537.36 Original UA
+ua = UserAgent().chrome
+
 headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.60 Safari/537.36",
+    "User-Agent": ua,
     "Accept-Language": "en",
 }
 df = pd.read_excel("ComputerPartsData.xlsx")  # Read included Excel sheet to start program.
@@ -36,7 +38,7 @@ def scrape_data():
     prices = []
     #  Base url that will be altered at the bottom of while to change pages
 
-    while page_num != 2:
+    while page_num != 4:
 
         # This block grabs the initial webpage of all the products
         page = requests.get(page_url, headers=headers)
@@ -49,7 +51,7 @@ def scrape_data():
 
         # This block loops through individual product pages and appends data to our list which is used to create a dict
         for url in link_list:                                       # Looping through our list of links established above with link_list
-            time.sleep(2)
+            time.sleep(random.randrange(2,9))
             html = NWF.page_data(url)                               # page_data returns soup of a given url
             dictionary_data.append(NWF.get_item_attribute(html))    # get_item_attribute returns a list of all relevant data (list of lists, 1 list per item)
 

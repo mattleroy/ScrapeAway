@@ -68,7 +68,10 @@ class NWF:  # Newegg
 
     @classmethod
     def get_price(cls, cell):
-        price = [item.find('li', {'class': 'price-current'}).strong.get_text() for item in cell]
+        try:
+            price = [item.find('li', {'class': 'price-current'}).strong.get_text() for item in cell]
+        except AttributeError:
+            return "DNE"
         return price
 
     @classmethod
