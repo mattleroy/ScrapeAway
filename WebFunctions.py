@@ -30,16 +30,14 @@ class NWF:  # Newegg
             table = parsed_html.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
             try:
                 details = [item.find('tbody') for item in table][index]     # Grabs whatever table the index passed gets from the list above
-                table_items = details.find_all('tr')  # Creates list of rows from Model table
+                table_items = details.find_all('tr')                        # Creates list of rows from Model table
                 # Strings MUST be exactly matching Newegg table (Line below)
-                search_list = ["Brand", "# of Cores", "# of Threads", "Operating Frequency", "Max Turbo Frequency",
-                               "CPU Socket Type", "Name"]
-                for ind, model_item in enumerate(table_items):  # Gets index and item from "table_items"
-                    model_item = model_item.find(
-                        'th').get_text()  # Gets plain-text of row item (Cores, Brand, Socket Type, Threads, etc)
-                    for term in search_list:  # Uses the search_list to find the items we want from the site
+                search_list = ["Brand", "# of Cores", "# of Threads", "Operating Frequency", "Max Turbo Frequency", "CPU Socket Type", "Name"]
+                for ind, model_item in enumerate(table_items):              # Gets index and item from "table_items"
+                    model_item = model_item.find('th').get_text()           # Gets plain-text of row item (Cores, Brand, Socket Type, Threads, etc)
+                    for term in search_list:                                # Uses the search_list to find the items we want from the site
                         if term == cls.space_stripper(
-                                model_item):  # Compares our search_list term to the website term and pulls if matching
+                                model_item):                                # Compares our search_list term to the website term and pulls if matching
                             attribute_list.append(table_items[ind].find('td').get_text())  # Append to list
             except IndexError:
                 print("Trouble grabbing tables")

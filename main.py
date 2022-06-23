@@ -29,22 +29,22 @@ gpu_url = "https://www.newegg.com/Desktop-Graphics-Cards/SubCategory/ID-48?Tid=7
 # 7) switch to GPU
 # 8) set page_url to gpu_url
 
-
 def scrape_data():
 
     page_num = 1
     page_url = cpu_url
     dictionary_data = []  # Declaring list we will be appending data to (Brand, Cores, Threads, etc..)
     prices = []
-    #  Base url that will be altered at the bottom of while to change pages
+    # TODO link_list here?
+    # Base url that will be altered at the bottom of while to change pages
 
     while page_num != 4:
 
         # This block grabs the initial webpage of all the products
         page = requests.get(page_url, headers=headers)
         soup = BeautifulSoup(page.text, "html.parser")
-        cell = soup.find_all(class_='item-cell')                                # This is a list
-        prices = NWF.get_price(cell)  # This is a list of prices
+        cell = soup.find_all(class_='item-cell')                    # This is a list
+        prices = NWF.get_price(cell)                                # This is a list of prices
 
         # This block grabs all the links of the products on the page, and feeds it into a list to loop through
         link_list = NWF.get_link(cell)                              # List of links to loop through
@@ -56,9 +56,8 @@ def scrape_data():
             dictionary_data.append(NWF.get_item_attribute(html))    # get_item_attribute returns a list of all relevant data (list of lists, 1 list per item)
 
         page_num += 1   # Increment page
-        split_list = page_url.split('/')[:-1]
+        split_list = page_url.split('/')[:-1]  # TODO Maybe just change this to a string?
         page_url = '/'.join(split_list) + f"/page-{page_num}"
-        #TODO Need loop here to to go through pages (code WILL keep moving down if no loop is here)
 
     # The data we gathered above is placed into the dictionary declared here
     # But we are just creating the dict here
@@ -88,6 +87,11 @@ def scrape_data():
         except IndexError:
             data["Max Operating Frequency"].append("DNE")
 
+    #TODO Current Problem:
+    # var data is currently only grabbing 37 items. I suspect this has to do with link_list only having 37 items.
+    # dictionary_data has all 110 items from scraping, yet the DataFrame/Excel Sheet only has 38 items written to it.
+    #TODO Change the way link_list is written or change get_link method. See if link_list needs to be outside of while.
+
     dataset = pd.DataFrame(data)  # dataset is the dataframe, data is the dictionary
     # Write DataFrame to Excel sheet
     with ExcelWriter('ComputerPartsData.xlsx', mode="a", engine="openpyxl", if_sheet_exists="replace") as writer:
@@ -96,7 +100,7 @@ def scrape_data():
         # Without it, it will not work. #startrow=writer.sheets['Sheet1'].max_row
         # That line, did however cause an empty row at the top of XL sheet
 
-    #TODO Product changer down here (CPU --> GPU)
+    # TODO Product changer down here (CPU --> GPU)
 
 """def drop_data():  # This function drops all data within the Excel sheet.
     df = pd.read_excel("ComputerPartsData.xlsx")
