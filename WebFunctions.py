@@ -65,6 +65,11 @@ class NWF:  # Newegg
         return link
 
     @classmethod
+    def new_get_link(cls, cell):
+        link = cell.find('a', href=True)['href']
+        return link
+
+    @classmethod
     def get_price(cls, cell):
         try:
             price = [item.find('li', {'class': 'price-current'}).strong.get_text() for item in cell]

@@ -35,19 +35,21 @@ def scrape_data():
     page_url = cpu_url
     dictionary_data = []  # Declaring list we will be appending data to (Brand, Cores, Threads, etc..)
     prices = []
+    link_list = []
     # TODO link_list here?
     # Base url that will be altered at the bottom of while to change pages
 
-    while page_num != 4:
+    while page_num != 3:
 
         # This block grabs the initial webpage of all the products
         page = requests.get(page_url, headers=headers)
         soup = BeautifulSoup(page.text, "html.parser")
         cell = soup.find_all(class_='item-cell')                    # This is a list
         prices = NWF.get_price(cell)                                # This is a list of prices
+        print("Page Inc: " + str(page_num))
 
         # This block grabs all the links of the products on the page, and feeds it into a list to loop through
-        link_list = NWF.get_link(cell)                              # List of links to loop through
+        link_list = NWF.get_link(cell)                            # List of links to loop through
 
         # This block loops through individual product pages and appends data to our list which is used to create a dict
         for url in link_list:                                       # Looping through our list of links established above with link_list
@@ -88,9 +90,9 @@ def scrape_data():
             data["Max Operating Frequency"].append("DNE")
 
     #TODO Current Problem:
-    # var data is currently only grabbing 37 items. I suspect this has to do with link_list only having 37 items.
+    # var data is currently only grabbing 37 items.
     # dictionary_data has all 110 items from scraping, yet the DataFrame/Excel Sheet only has 38 items written to it.
-    #TODO Change the way link_list is written or change get_link method. See if link_list needs to be outside of while.
+    # TODO Change the way link_list is written or change get_link method. See if link_list needs to be outside of while.
 
     dataset = pd.DataFrame(data)  # dataset is the dataframe, data is the dictionary
     # Write DataFrame to Excel sheet
