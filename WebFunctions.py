@@ -60,12 +60,12 @@ class NWF:  # Newegg
         return soup  # Returns WHOLE page of HTML, needs further processing to single out more specific data
 
     @classmethod
-    def get_link(cls, cell):
+    def get_link(cls, cell):  # This takes in a list, and returns a modified one
         link = [item.find('a', href=True)['href'] for item in cell]
         return link
 
-    @classmethod
-    def new_get_link(cls, cell):
+    @classmethod  # UNUSED
+    def new_get_link(cls, cell):  # Remember, find will return a result
         link = cell.find('a', href=True)['href']
         return link
 

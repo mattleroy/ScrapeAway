@@ -44,22 +44,24 @@ def scrape_data():
         # This block grabs the initial webpage of all the products
         page = requests.get(page_url, headers=headers)
         soup = BeautifulSoup(page.text, "html.parser")
-        cell = soup.find_all(class_='item-cell')                    # This is a list
-        prices = NWF.get_price(cell)                                # This is a list of prices
+        cell = soup.find_all(class_='item-cell')                # This is a list
         print("Page Inc: " + str(page_num))
 
-        # This block grabs all the links of the products on the page, and feeds it into a list to loop through
-        link_list = NWF.get_link(cell)                            # List of links to loop through
+        # This block grabs all the links and prices of the products on the page
+        # Used += so that it appends to the link_list var
+        prices += NWF.get_price(cell)                            # This is a list of prices
+        link_list += NWF.get_link(cell)                         # List of links to loop through
 
         # This block loops through individual product pages and appends data to our list which is used to create a dict
-        for url in link_list:                                       # Looping through our list of links established above with link_list
-            time.sleep(random.randrange(2,9))
-            html = NWF.page_data(url)                               # page_data returns soup of a given url
-            dictionary_data.append(NWF.get_item_attribute(html))    # get_item_attribute returns a list of all relevant data (list of lists, 1 list per item)
-
         page_num += 1   # Increment page
         split_list = page_url.split('/')[:-1]  # TODO Maybe just change this to a string?
         page_url = '/'.join(split_list) + f"/page-{page_num}"
+
+    for url in link_list:                                       # Looping through our list of links established above with link_list
+        #time.sleep(random.randrange(2,9))
+        html = NWF.page_data(url)                               # page_data returns soup of a given url
+        dictionary_data.append(NWF.get_item_attribute(html))    # get_item_attribute returns a list of all relevant data (list of lists, 1 list per item)
+
 
     # The data we gathered above is placed into the dictionary declared here
     # But we are just creating the dict here
@@ -89,11 +91,9 @@ def scrape_data():
         except IndexError:
             data["Max Operating Frequency"].append("DNE")
 
-    #TODO Current Problem:
-    # var data is currently only grabbing 37 items.
-    # dictionary_data has all 110 items from scraping, yet the DataFrame/Excel Sheet only has 38 items written to it.
-    # TODO Change the way link_list is written or change get_link method. See if link_list needs to be outside of while.
 
+    # TODO Fix ValueError "All arrays must be the same length". The data dictionary has all values equal to 74.
+    # TODO However one value (Operating Frequency) equals 71. This causes program to fail.
     dataset = pd.DataFrame(data)  # dataset is the dataframe, data is the dictionary
     # Write DataFrame to Excel sheet
     with ExcelWriter('ComputerPartsData.xlsx', mode="a", engine="openpyxl", if_sheet_exists="replace") as writer:
