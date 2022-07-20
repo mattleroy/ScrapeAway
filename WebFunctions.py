@@ -101,3 +101,32 @@ class NWF:  # Newegg
             model_item = model_item.find('th').get_text()               # Gets text of row item (Brand, Series, Name, etc)
             if "Name" in model_item:                                    # Finds where "Name" appears in that loop
                 return table_items[ind].find('td').get_text()           # Returns the CPU that matches the "Name"
+
+    """def drop_data():  # This function drops all data within the Excel sheet.
+        df = pd.read_excel("ComputerPartsData.xlsx")
+        column_count = df.shape                                 # Returns tuple of ordered pair of (rows, columns) This is for the next line
+        cols = [i for i in range(0, column_count[1])]           # Comprehension to set how many columns exist in sheet
+        df.drop(df.columns[cols], inplace=True, axis=1)         # Drops the number of columns specified by cols
+        with ExcelWriter("ComputerPartsData.xlsx") as writer:
+            df.to_excel(writer, index=False, sheet_name="Sheet1")
+            # This ExcelWriter is writing "nothing" to the Excel sheet to erase all existing data.
+
+    if df.notnull().values.any():   # This checks if the Excel sheet has existing content, if True, drops all of it.
+        drop_data()
+    else:                           # This will populate data if empty.
+        scrape_data()
+
+    """
+
+    """    for item_attr, price in zip(dictionary_data, prices):
+            try:
+                data["Brand"].append(item_attr[0])
+                data["Name"].append(item_attr[1])
+                data["Price"].append("$" + price)
+                data["Socket"].append(item_attr[2])
+                data["Cores"].append(item_attr[3])
+                data["Threads"].append(item_attr[4])
+                data["Operating Frequency"].append(item_attr[5])
+                data["Max Operating Frequency"].append(item_attr[6])
+            except IndexError:
+                data["Max Operating Frequency"].append("DNE")"""

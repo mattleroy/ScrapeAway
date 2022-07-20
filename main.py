@@ -48,9 +48,9 @@ def scrape_data():
         print("Page Inc: " + str(page_num))
 
         # This block grabs all the links and prices of the products on the page
-        # Used += so that it appends to the link_list var
+        # Remember += so that it appends to the link_list var
         prices += NWF.get_price(cell)                            # This is a list of prices
-        link_list += NWF.get_link(cell)                         # List of links to loop through
+        link_list += NWF.get_link(cell)                          # List of links to loop through
 
         # This block loops through individual product pages and appends data to our list which is used to create a dict
         page_num += 1   # Increment page
@@ -58,10 +58,10 @@ def scrape_data():
         page_url = '/'.join(split_list) + f"/page-{page_num}"
 
     for url in link_list:                                       # Looping through our list of links established above with link_list
-        #time.sleep(random.randrange(2,9))
+        time.sleep(random.randrange(2,7))
         html = NWF.page_data(url)                               # page_data returns soup of a given url
         dictionary_data.append(NWF.get_item_attribute(html))    # get_item_attribute returns a list of all relevant data (list of lists, 1 list per item)
-
+        # TODO "Trouble grabbing tables" error happens somewhere above
 
     # The data we gathered above is placed into the dictionary declared here
     # But we are just creating the dict here
@@ -78,45 +78,25 @@ def scrape_data():
 
     # This block appends all the data from dictionary_data to our new data dict above. This is for use in a DataFrame
     # Using the zip method to loop through both the price list and the dictionary data.
-    for item_attr, price in zip(dictionary_data, prices):
-        try:
-            data["Brand"].append(item_attr[0])
-            data["Name"].append(item_attr[1])
-            data["Price"].append("$" + price)
-            data["Socket"].append(item_attr[2])
-            data["Cores"].append(item_attr[3])
-            data["Threads"].append(item_attr[4])
-            data["Operating Frequency"].append(item_attr[5])
-            data["Max Operating Frequency"].append(item_attr[6])
-        except IndexError:
-            data["Max Operating Frequency"].append("DNE")
+    # TODO Need to capture "Prices" in here
+    for count, key in enumerate(data.keys()):
+        for item_attr in dictionary_data:
+            try:
+                data[key].append(item_attr[count])
+            except IndexError:
+                data[key].append("DNE")
 
+    print(data)
 
-    # TODO Fix ValueError "All arrays must be the same length". The data dictionary has all values equal to 74.
-    # TODO However one value (Operating Frequency) equals 71. This causes program to fail.
     dataset = pd.DataFrame(data)  # dataset is the dataframe, data is the dictionary
+
     # Write DataFrame to Excel sheet
     with ExcelWriter('ComputerPartsData.xlsx', mode="a", engine="openpyxl", if_sheet_exists="replace") as writer:
-        dataset.to_excel(writer, index=False, sheet_name='Sheet1')
+        dataset.to_excel(writer, index=False, sheet_name='Sheet1')  # <<<<<<<<<<
         # arg: startrow=writer.sheets['Sheet1'].max_row is hugely important for appending to the END of the sheet.
         # Without it, it will not work. #startrow=writer.sheets['Sheet1'].max_row
         # That line, did however cause an empty row at the top of XL sheet
 
     # TODO Product changer down here (CPU --> GPU)
 
-"""def drop_data():  # This function drops all data within the Excel sheet.
-    df = pd.read_excel("ComputerPartsData.xlsx")
-    column_count = df.shape                                 # Returns tuple of ordered pair of (rows, columns) This is for the next line
-    cols = [i for i in range(0, column_count[1])]           # Comprehension to set how many columns exist in sheet
-    df.drop(df.columns[cols], inplace=True, axis=1)         # Drops the number of columns specified by cols
-    with ExcelWriter("ComputerPartsData.xlsx") as writer:
-        df.to_excel(writer, index=False, sheet_name="Sheet1")
-        # This ExcelWriter is writing "nothing" to the Excel sheet to erase all existing data.
-
-if df.notnull().values.any():   # This checks if the Excel sheet has existing content, if True, drops all of it.
-    drop_data()
-else:                           # This will populate data if empty.
-    scrape_data()
-
-"""
 scrape_data()
