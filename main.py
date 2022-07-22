@@ -34,7 +34,7 @@ def scrape_data():
     page_num = 1
     page_url = cpu_url
     dictionary_data = []  # Declaring list we will be appending data to (Brand, Cores, Threads, etc..)
-    prices = []
+    #prices = []
     link_list = []
     # TODO link_list here?
     # Base url that will be altered at the bottom of while to change pages
@@ -49,7 +49,7 @@ def scrape_data():
 
         # This block grabs all the links and prices of the products on the page
         # Remember += so that it appends to the link_list var
-        prices += NWF.get_price(cell)                            # This is a list of prices
+        #prices += NWF.get_price(cell)                            # This is a list of prices
         link_list += NWF.get_link(cell)                          # List of links to loop through
 
         # This block loops through individual product pages and appends data to our list which is used to create a dict
@@ -58,7 +58,7 @@ def scrape_data():
         page_url = '/'.join(split_list) + f"/page-{page_num}"
 
     for url in link_list:                                       # Looping through our list of links established above with link_list
-        time.sleep(random.randrange(2,7))
+        #time.sleep(random.randrange(2, 7))
         html = NWF.page_data(url)                               # page_data returns soup of a given url
         dictionary_data.append(NWF.get_item_attribute(html))    # get_item_attribute returns a list of all relevant data (list of lists, 1 list per item)
         # TODO "Trouble grabbing tables" error happens somewhere above
@@ -76,9 +76,13 @@ def scrape_data():
             "Max Operating Frequency": [],
             }
 
-    # This block appends all the data from dictionary_data to our new data dict above. This is for use in a DataFrame
-    # Using the zip method to loop through both the price list and the dictionary data.
-    # TODO Need to capture "Prices" in here
+    # Using double for loop with enumeration to loop through the keys in the dict declared above, and using the "count"
+    # var to make sure the index is captured
+
+    # TODO Price gets appended from here. Up until this point, things are normal in dictionary_data.
+    # TODO For this to properly work, all arrays need to be same length - OR do string matching.
+    # TODO This is because we are grabbing item_attr[index], and if arrays have different lengths, the index is different
+    # TODO Index 5 on one array might be Operating Frequency, but could be Socket on another.
     for count, key in enumerate(data.keys()):
         for item_attr in dictionary_data:
             try:
@@ -86,13 +90,11 @@ def scrape_data():
             except IndexError:
                 data[key].append("DNE")
 
-    print(data)
-
     dataset = pd.DataFrame(data)  # dataset is the dataframe, data is the dictionary
 
     # Write DataFrame to Excel sheet
     with ExcelWriter('ComputerPartsData.xlsx', mode="a", engine="openpyxl", if_sheet_exists="replace") as writer:
-        dataset.to_excel(writer, index=False, sheet_name='Sheet1')  # <<<<<<<<<<
+        dataset.to_excel(writer, index=False, sheet_name='Sheet1')
         # arg: startrow=writer.sheets['Sheet1'].max_row is hugely important for appending to the END of the sheet.
         # Without it, it will not work. #startrow=writer.sheets['Sheet1'].max_row
         # That line, did however cause an empty row at the top of XL sheet
