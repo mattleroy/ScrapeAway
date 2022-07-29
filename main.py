@@ -8,6 +8,7 @@ import time
 import random
 from itertools import zip_longest
 
+start_time = time.time()
 # Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.60 Safari/537.36 Original UA
 ua = UserAgent().chrome
 
@@ -39,7 +40,7 @@ def scrape_data():
     # TODO link_list here?
     # Base url that will be altered at the bottom of while to change pages
 
-    while page_num != 3:
+    while page_num != 2:
 
         # This block grabs the initial webpage of all the products
         page = requests.get(page_url, headers=headers)
@@ -99,6 +100,10 @@ def scrape_data():
         # Without it, it will not work. #startrow=writer.sheets['Sheet1'].max_row
         # That line, did however cause an empty row at the top of XL sheet
 
+    end_time = time.time()
+
+    elapsed_time = end_time - start_time
+    print("Execution time: " + str(elapsed_time) + " seconds")
     # TODO Product changer down here (CPU --> GPU)
 
 scrape_data()

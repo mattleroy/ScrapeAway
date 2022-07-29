@@ -31,24 +31,40 @@ class NWF:  # Newegg
         except AttributeError:
             price = "DNE"
         while index < 3:
-            table = parsed_html.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables (Model, Details, etc)
+            table = parsed_html.find_all('table', {'class': 'table-horizontal'})   # Returns a list of the tables as html (Model, Details, etc)
+            if index == 1:
+                search_list = ["Brand", "Name"]
+            else:
+                search_list = ["# of Cores", "# of Threads", "Operating Frequency", "Max Turbo Frequency", "CPU Socket Type"]
             try:
-                details = [item.find('tbody') for item in table][index]     # Grabs whatever table the index passed gets from the list above
-                table_items = details.find_all('tr')                        # Creates list of rows from Model table
-                # Strings MUST be exactly matching Newegg table (Line below)
-                search_list = ["Brand", "# of Cores", "# of Threads", "Operating Frequency", "Max Turbo Frequency", "CPU Socket Type", "Name"]
-                # TODO Insert item removal from list to make search more efficient, so it doesn't loop through the rest of the list
-                # TODO and just moves on to the next item in the iteration
-                for ind, model_item in enumerate(table_items):              # Gets index and item from "table_items"
-                    model_item = model_item.find('th').get_text()           # Gets plain-text of row item (Cores, Brand, Socket Type, Threads, etc)
+                details = [item.find('tbody') for item in table][index]     # This grabs the table (Models/Details) as a big html string
+                table_items = details.find_all('tr')  # Creates list of rows from above string (still html)
+                comparison_list = {}
+                for ind, key in enumerate(table_items):
+                    key = key.find('th').get_text()
+                    value = table_items[ind].find('td').get_text()
+                    comparison_list.update({cls.space_stripper(key): value})
+                for i in comparison_list.keys():
+                    # TODO Somewhere here, figure out how to lessen the amount of items is in the comparison list
+                    for j in search_list:
+                        if not search_list:  # Is list empty? If so, stop searching.
+                            break
+                        if i == j:
+                            search_list.remove(i)
+                            attribute_list.append(comparison_list[j])
+                            print('asdasd')
+                """for ind, model_item in enumerate(comparison_list):              # Gets index and item from "table_items"
+                    if not search_list:  # Is list empty? If so, stop searching.
+                        break
                     for term in search_list:                                # Uses the search_list to find the items we want from the site
-                        if term == cls.space_stripper(model_item):          # Compares our search_list term to the website term and pulls if matching
-                            attribute_list.append(table_items[ind].find('td').get_text())  # Append to list
+                        if term ==           # Compares our search_list term to the website term and pulls if matching
+                            search_list.remove(term)                        # Removes matching item, so it isn't used again in next search (efficiency)
+                            attribute_list.append(table_items[ind].find('td').get_text())  # Append to list"""
             except IndexError:
                 print("Trouble grabbing tables")  # This error means the "Details/Models" etc. tables do not exist
 
             index += 1
-        attribute_list.insert(2, int(price))
+        attribute_list.insert(2, price)
 
         return attribute_list
 
